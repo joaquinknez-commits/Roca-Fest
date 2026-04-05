@@ -26,7 +26,8 @@ module.exports = async function handler(req, res) {
     });
     const payment = await mpRes.json();
 
-    if (payment.status !== 'approved') return res.status(200).json({ ok: true, status: payment.status });
+    console.log('PAYMENT:', JSON.stringify({ status: payment.status, external_reference: payment.external_reference, id: payment.id }));
+if (payment.status !== 'approved') return res.status(200).json({ ok: true, status: payment.status });
 
     const orderId = payment.external_reference;
     if (!orderId) return res.status(200).json({ ok: true });
