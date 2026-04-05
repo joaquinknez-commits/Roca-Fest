@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pago exitoso — ROCA</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #0f0f0f;
+    --white: #ffffff;
+    --off-white: #f7f7f5;
+    --mid: #aaaaaa;
+    --border: #e0e0de;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  html, body {
+    background: var(--white);
+    color: var(--black);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  .check-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .check-icon {
+    width: 32px; height: 32px;
+    stroke: white;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .title {
+    font-family: var(--font-display);
+    font-size: 42px;
+    letter-spacing: 4px;
+    color: var(--black);
+    text-align: center;
+    margin-bottom: 12px;
+    animation: fadeUp 0.4s ease 0.15s both;
+  }
+  .subtitle {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--mid);
+    text-align: center;
+    line-height: 1.7;
+    margin-bottom: 40px;
+    animation: fadeUp 0.4s ease 0.25s both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card {
+    width: 100%;
+    background: var(--off-white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 28px;
+    font-size: 13px;
+    color: var(--mid);
+    text-align: center;
+    line-height: 1.7;
+    animation: fadeUp 0.4s ease 0.35s both;
+  }
+  .home-btn {
+    display: block;
+    width: 100%;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    padding: 18px;
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    animation: fadeUp 0.4s ease 0.45s both;
+  }
+</style>
+</head>
+<body>
+
+<div class="check-circle">
+  <svg class="check-icon" viewBox="0 0 24 24">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+</div>
+
+<div class="title">¡LISTO!</div>
+
+<div class="subtitle">
+  Tu pago fue aprobado.<br>
+  Te enviamos el QR de tu entrada al mail.
+</div>
+
+<div class="card">
+  Revisá tu casilla de correo (y el spam por las dudas).<br>
+  Presentá el QR en la puerta el día del evento.
+</div>
+
+<a href="/" class="home-btn">VER MÁS EVENTOS</a>
+
+</body>
+</html>

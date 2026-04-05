@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/create-preference.js": {
+      "runtime": "nodejs20.x"
+    },
+    "api/webhook-mp.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
