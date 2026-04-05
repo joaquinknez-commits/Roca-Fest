@@ -7,6 +7,7 @@ module.exports = async function handler(req, res) {
   const RESEND_KEY = 're_EK5wn2dU_8qRKxSgzcUyVcmTZddDXoyem';
 
   try {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     const { type, data } = req.body;
     if (type !== 'payment') return res.status(200).json({ ok: true });
 
