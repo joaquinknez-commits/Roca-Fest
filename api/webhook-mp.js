@@ -1,4 +1,5 @@
 module.exports = async function handler(req, res) {
+  if (req.method === 'GET') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).end();
 
   const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
