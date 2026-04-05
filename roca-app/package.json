@@ -1,8 +1,0 @@
-{
-  "name": "roca-app",
-  "version": "1.0.0",
-  "description": "ROCA — Sistema de entradas",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
-  }
-}
