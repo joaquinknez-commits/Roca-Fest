@@ -56,7 +56,7 @@ module.exports = async function handler(req, res) {
     // Generate tickets
     const tickets = [];
     for (let i = 0; i < order.quantity; i++) {
-      const qrCode = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
+      const qrCode = require('crypto').randomUUID();
       tickets.push({
         order_id: orderId,
         event_id: order.event_id,
