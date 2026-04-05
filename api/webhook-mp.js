@@ -1,6 +1,5 @@
 module.exports = async function handler(req, res) {
   if (req.method === 'GET') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).end();
 
   const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb214c3pxcGlrcXN2Y3JmdXBiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTM1MjE1MiwiZXhwIjoyMDkwOTI4MTUyfQ.wmJl_ZaOy6XnOXcxUYY1Ad2ZkJLXEU4YX6fW7s34Sv8';
@@ -8,31 +7,40 @@ module.exports = async function handler(req, res) {
   const RESEND_KEY = 're_EK5wn2dU_8qRKxSgzcUyVcmTZddDXoyem';
 
   try {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    const { type, data } = req.body;
-    if (type !== 'payment') return res.status(200).json({ ok: true });
+    const body = req.body || {};
+    const query = req.query || {};
 
-    const paymentId = data?.id;
-    if (!paymentId) return res.status(400).json({ error: 'No payment id' });
+    const isPayment =
+      body.type === 'payment' ||
+      body.action === 'payment.created' ||
+      body.action === 'payment.updated' ||
+      query.topic === 'payment';
+
+    if (!isPayment) return res.status(200).json({ ok: true });
+
+    const paymentId = body?.data?.id || query?.id;
+    if (!paymentId) return res.status(200).json({ ok: true });
 
     const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: { 'Authorization': `Bearer ${MP_TOKEN}` }
     });
     const payment = await mpRes.json();
-    if (payment.status !== 'approved') return res.status(200).json({ ok: true });
+
+    if (payment.status !== 'approved') return res.status(200).json({ ok: true, status: payment.status });
 
     const orderId = payment.external_reference;
+    if (!orderId) return res.status(200).json({ ok: true });
 
     const orderRes = await fetch(
       `${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=*,ticket_types(name,price),events(name,date,venue)`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
     );
     const orders = await orderRes.json();
-    if (!orders || orders.length === 0) return res.status(404).json({ error: 'Order not found' });
+    if (!orders || orders.length === 0) return res.status(200).json({ ok: true });
     const order = orders[0];
+
     if (order.status === 'paid') return res.status(200).json({ ok: true });
 
-    // Mark order as paid
     await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}`, {
       method: 'PATCH',
       headers: {
@@ -44,7 +52,6 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({ status: 'paid', mp_payment_id: String(paymentId) })
     });
 
-    // Update sold quantity
     await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_sold`, {
       method: 'POST',
       headers: {
@@ -55,7 +62,6 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({ ticket_type_id: order.ticket_type_id, amount: order.quantity })
     });
 
-    // Generate tickets
     const tickets = [];
     for (let i = 0; i < order.quantity; i++) {
       const qrCode = require('crypto').randomUUID();
@@ -81,7 +87,6 @@ module.exports = async function handler(req, res) {
     });
     const insertedTickets = await ticketRes.json();
 
-    // Send email
     if (insertedTickets && insertedTickets.length > 0) {
       await sendEmail(order, insertedTickets, RESEND_KEY);
     }
