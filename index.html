@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ROCA</title>
+<meta property="og:title" content="ROCA — Entradas">
+<meta property="og:description" content="Conseguí tus entradas para ROCA">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --white: #ffffff;
+  --off-white: #f7f7f5;
+  --light: #eeeeec;
+  --mid: #aaaaaa;
+  --dark: #333333;
+  --black: #0f0f0f;
+  --border: #e0e0de;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+html, body {
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+/* ── HERO ── */
+.hero {
+  background: var(--black);
+  padding: 48px 22px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-eyebrow {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: 120px;
+  line-height: 0.85;
+  letter-spacing: 8px;
+  color: var(--white);
+  margin-bottom: 20px;
+}
+
+.hero-sub {
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mid);
+}
+
+/* ── NAV TABS ── */
+.nav-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 22px;
+  gap: 28px;
+  background: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.nav-tab {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--mid);
+  padding: 16px 0;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  background: none;
+  font-family: var(--font-body);
+}
+
+.nav-tab.active { color: var(--black); border-bottom-color: var(--black); }
+
+/* ── CONTENT ── */
+.content { padding: 0 16px 100px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 28px 4px 20px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: var(--black);
+}
+
+.section-count {
+  font-size: 11px;
+  color: var(--mid);
+  letter-spacing: 1px;
+}
+
+/* ── PROMOTER BANNER ── */
+.promoter-banner {
+  display: none;
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--dark);
+  letter-spacing: 0.3px;
+}
+.promoter-banner.visible { display: block; }
+
+/* ── EVENT CARD ── */
+.event-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: fadeUp 0.35s ease both;
+  background: var(--white);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.event-card:nth-child(2) { animation-delay: 0.07s; }
+.event-card:nth-child(3) { animation-delay: 0.14s; }
+.event-card:active { transform: scale(0.985); }
+.event-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+
+.event-flyer {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.event-flyer-placeholder {
+  width: 100%;
+  height: 200px;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-flyer-placeholder-text {
+  font-family: var(--font-display);
+  font-size: 60px;
+  letter-spacing: 10px;
+  color: rgba(255,255,255,0.1);
+}
+
+.event-body { padding: 18px 18px 16px; }
+
+.event-date {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 6px;
+}
+
+.event-name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 2px;
+  line-height: 1;
+  color: var(--black);
+  margin-bottom: 5px;
+}
+
+.event-venue {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+  margin-bottom: 16px;
+}
+
+.event-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.event-price {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: var(--black);
+}
+
+.event-price-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--mid);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.event-btn {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 11px 22px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.event-btn:active { transform: scale(0.97); opacity: 0.85; }
+
+/* ── LOADING / EMPTY ── */
+.loading-state, .empty-state {
+  text-align: center;
+  padding: 70px 20px;
+  color: var(--mid);
+}
+
+.loading-ring {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  border-top-color: var(--black);
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-sheet {
+  background: var(--white);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 430px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 0 20px 48px;
+  animation: sheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 14px auto 24px;
+}
+
+.modal-event-date {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 6px;
+}
+
+.modal-event-name {
+  font-family: var(--font-display);
+  font-size: 40px;
+  letter-spacing: 3px;
+  line-height: 1;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+
+.modal-event-venue {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+  margin-bottom: 24px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 14px;
+}
+
+/* ── TICKET TYPE ROWS ── */
+.ticket-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.ticket-row:last-child { border-bottom: none; }
+.ticket-row.selected .ticket-row-name { font-weight: 500; }
+
+.ticket-row-left { display: flex; flex-direction: column; gap: 3px; }
+
+.ticket-row-name {
+  font-size: 15px;
+  color: var(--black);
+}
+
+.ticket-row-avail {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--mid);
+}
+
+.ticket-row-right { display: flex; align-items: center; gap: 14px; }
+
+.ticket-row-price {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: var(--black);
+}
+
+.qty-control {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.qty-control.visible { display: flex; }
+
+.qty-btn {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--black);
+  font-size: 17px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+  transition: background 0.1s;
+}
+
+.qty-btn:hover { background: var(--off-white); }
+.qty-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.qty-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  min-width: 18px;
+  text-align: center;
+  color: var(--black);
+}
+
+/* ── BUYER FORM ── */
+.form-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--black);
+  font-family: var(--font-body);
+  font-size: 15px;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+
+.form-input:focus { border-color: var(--dark); background: var(--white); }
+.form-input::placeholder { color: var(--mid); }
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  border-top: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+
+.total-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mid);
+}
+
+.total-amount {
+  font-family: var(--font-display);
+  font-size: 34px;
+  letter-spacing: 2px;
+  color: var(--black);
+}
+
+.pay-btn {
+  width: 100%;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 12px;
+  padding: 18px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pay-btn:active { transform: scale(0.985); opacity: 0.85; }
+.pay-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.mp-badge {
+  display: inline-flex;
+  align-items: center;
+  background: white;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: #009ee3;
+  letter-spacing: 0;
+}
+
+.cancel-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: var(--mid);
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: 10px;
+}
+
+.form-error {
+  background: #fff5f5;
+  border: 1px solid #ffd0d0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #cc3333;
+  margin-bottom: 14px;
+  display: none;
+}
+
+/* ── STAFF PAGE ── */
+.staff-wrap { padding: 40px 22px; }
+
+.staff-title {
+  font-family: var(--font-display);
+  font-size: 38px;
+  letter-spacing: 4px;
+  color: var(--black);
+  margin-bottom: 6px;
+}
+
+.staff-sub {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+  margin-bottom: 36px;
+}
+
+.pin-dots {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.pin-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pin-dot.filled { background: var(--black); border-color: var(--black); }
+
+.pin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.pin-key {
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--black);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.1s, transform 0.1s;
+  letter-spacing: 0;
+}
+
+.pin-key:active { background: var(--light); transform: scale(0.95); }
+.pin-key.del { font-family: var(--font-body); font-size: 18px; color: var(--mid); }
+.pin-key.empty { visibility: hidden; }
+
+.pin-error {
+  text-align: center;
+  color: #cc3333;
+  font-size: 13px;
+  margin-top: 18px;
+  min-height: 20px;
+}
+
+/* ── SCANNER ── */
+.scanner-wrap { display: none; padding: 22px; }
+.scanner-wrap.visible { display: block; }
+
+.scanner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.scanner-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  letter-spacing: 3px;
+  color: var(--black);
+}
+
+.scanner-sub {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--mid);
+}
+
+.logout-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--mid);
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+.scanner-frame {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--black);
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.scanner-frame video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scanner-canvas { display: none; }
+
+.scan-corners {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+
+.scan-corner {
+  position: absolute;
+  width: 28px; height: 28px;
+  border-color: var(--white);
+  border-style: solid;
+}
+
+.scan-corner.tl { top: 18px; left: 18px; border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
+.scan-corner.tr { top: 18px; right: 18px; border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
+.scan-corner.bl { bottom: 18px; left: 18px; border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
+.scan-corner.br { bottom: 18px; right: 18px; border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
+
+.scan-line {
+  position: absolute;
+  left: 18px; right: 18px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: scanAnim 2s ease-in-out infinite;
+}
+
+@keyframes scanAnim {
+  0%   { top: 18px; opacity: 1; }
+  100% { top: calc(100% - 18px); opacity: 0.3; }
+}
+
+.scan-result {
+  display: none;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  margin-bottom: 14px;
+  animation: fadeUp 0.2s ease;
+}
+
+.scan-result.valid   { background: #f0faf4; border: 1px solid #b0ddc0; }
+.scan-result.invalid { background: #fff5f5; border: 1px solid #ffd0d0; }
+.scan-result.used    { background: #fffaf0; border: 1px solid #ffdfa0; }
+.scan-result.visible { display: block; }
+
+.scan-status {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+
+.scan-result.valid   .scan-status { color: #1a7a3a; }
+.scan-result.invalid .scan-status { color: #cc3333; }
+.scan-result.used    .scan-status { color: #b87800; }
+
+.scan-detail {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+}
+
+.scanner-hint {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--mid);
+  letter-spacing: 0.5px;
+  padding: 8px 0;
+}
+
+/* ── CAMERA ERROR ── */
+.camera-error {
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.camera-error-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.camera-error-text {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mid);
+  line-height: 1.6;
+}
+
+/* Manual QR input for fallback */
+.manual-input-wrap {
+  margin-top: 16px;
+}
+
+.manual-input-wrap .form-input {
+  margin-bottom: 0;
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Buenos Aires</div>
+  <div class="hero-title">ROCA</div>
+  <div class="hero-sub">Entradas oficiales</div>
+</div>
+
+<!-- NAV -->
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="showPage('events', this)">Eventos</button>
+  <button class="nav-tab" onclick="showPage('staff', this)">Staff</button>
+</div>
+
+<!-- EVENTS PAGE -->
+<div id="page-events" class="page active content">
+  <div id="promoter-banner" class="promoter-banner">
+    Vendiendo por: <strong id="promoter-name-text"></strong>
+  </div>
+  <div class="section-header">
+    <div class="section-title">PRÓXIMOS</div>
+    <div class="section-count" id="event-count"></div>
+  </div>
+  <div id="events-list">
+    <div class="loading-state">
+      <div class="loading-ring"></div>
+      <div style="font-size:13px;letter-spacing:1px;color:var(--mid);">Cargando eventos...</div>
+    </div>
+  </div>
+</div>
+
+<!-- STAFF PAGE -->
+<div id="page-staff" class="page content">
+
+  <!-- PIN LOGIN -->
+  <div class="staff-wrap" id="staff-login">
+    <div class="staff-title">STAFF</div>
+    <div class="staff-sub">Ingresá tu PIN para acceder al scanner</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd-0"></div>
+      <div class="pin-dot" id="pd-1"></div>
+      <div class="pin-dot" id="pd-2"></div>
+      <div class="pin-dot" id="pd-3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+
+  <!-- SCANNER -->
+  <div class="scanner-wrap" id="scanner-wrap">
+    <div class="scanner-header">
+      <div>
+        <div class="scanner-title">SCANNER</div>
+        <div class="scanner-sub">Apuntá al QR de la entrada</div>
+      </div>
+      <button class="logout-btn" onclick="staffLogout()">Salir</button>
+    </div>
+
+    <div class="scanner-frame" id="scanner-frame">
+      <video id="scanner-video" playsinline autoplay muted></video>
+      <canvas class="scanner-canvas" id="scanner-canvas"></canvas>
+      <div class="scan-corners">
+        <div class="scan-corner tl"></div>
+        <div class="scan-corner tr"></div>
+        <div class="scan-corner bl"></div>
+        <div class="scan-corner br"></div>
+        <div class="scan-line"></div>
+      </div>
+    </div>
+
+    <div class="scan-result" id="scan-result">
+      <div class="scan-status" id="scan-status">—</div>
+      <div class="scan-detail" id="scan-detail">—</div>
+    </div>
+
+    <div class="scanner-hint">Escaneando automáticamente...</div>
+
+    <!-- Manual fallback -->
+    <div class="manual-input-wrap" style="margin-top:20px;">
+      <div class="section-label">O ingresá el código manualmente</div>
+      <div style="display:flex;gap:10px;">
+        <input type="text" class="form-input" id="manual-qr" placeholder="Código QR" style="margin-bottom:0;flex:1;">
+        <button class="event-btn" onclick="manualValidate()" style="white-space:nowrap;">Validar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PURCHASE MODAL -->
+<div class="modal-overlay" id="purchase-modal" onclick="handleOverlayClick(event)">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+
+    <div class="modal-event-date" id="modal-date">—</div>
+    <div class="modal-event-name" id="modal-name">—</div>
+    <div class="modal-event-venue" id="modal-venue">—</div>
+
+    <div class="divider"></div>
+    <div class="section-label">Tipo de entrada</div>
+    <div id="ticket-types-list"></div>
+
+    <div class="divider"></div>
+    <div class="section-label">Tus datos</div>
+    <label class="form-label">Nombre</label>
+    <input type="text" class="form-input" id="buyer-name" placeholder="Juan García" autocomplete="name">
+    <label class="form-label">Email</label>
+    <input type="email" class="form-input" id="buyer-email" placeholder="juan@email.com" autocomplete="email">
+
+    <div class="form-error" id="form-error"></div>
+
+    <div class="total-row">
+      <div class="total-label">Total</div>
+      <div class="total-amount" id="modal-total">$0</div>
+    </div>
+
+    <button class="pay-btn" id="pay-btn" onclick="startCheckout()">
+      PAGAR CON <span class="mp-badge">MP</span>
+    </button>
+    <button class="cancel-btn" onclick="closeModal()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb214c3pxcGlrcXN2Y3JmdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNTIxNTIsImV4cCI6MjA5MDkyODE1Mn0.uZhKgDTChxc2RIPq4xLnMHwQ8ntthTSdXyXEu8vkThs';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── STATE ──
+let allEvents = [];
+let currentEvent = null;
+let currentTicketType = null;
+let currentQty = 1;
+let promoterSlug = null;
+let promoterData = null;
+let pinValue = '';
+let scanStream = null;
+let scanInterval = null;
+let lastScannedCode = null;
+let scanCooldown = false;
+
+// ── INIT ──
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  promoterSlug = params.get('ref');
+
+  if (promoterSlug) {
+    const { data } = await sb.from('promoters').select('*').eq('slug', promoterSlug).single();
+    if (data) {
+      promoterData = data;
+      document.getElementById('promoter-name-text').textContent = data.name;
+      document.getElementById('promoter-banner').classList.add('visible');
+    }
+  }
+
+  await loadEvents();
+}
+
+// ── LOAD EVENTS ──
+async function loadEvents() {
+  const list = document.getElementById('events-list');
+
+  try {
+    const { data, error } = await sb
+      .from('events')
+      .select('*, ticket_types(*)')
+      .eq('is_active', true)
+      .gte('date', new Date().toISOString())
+      .order('date', { ascending: true });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-title">SIN EVENTOS</div>
+          <div style="font-size:13px;font-weight:300;">Próximamente...</div>
+        </div>`;
+      document.getElementById('event-count').textContent = '';
+      return;
+    }
+
+    allEvents = data;
+    const n = data.length;
+    document.getElementById('event-count').textContent = n + (n === 1 ? ' evento' : ' eventos');
+
+    list.innerHTML = data.map(ev => {
+      const d = new Date(ev.date);
+      const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+      const timeStr = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      const prices = ev.ticket_types || [];
+      const minPrice = prices.length ? Math.min(...prices.map(t => t.price)) : 0;
+
+      return `
+        <div class="event-card" onclick="openModal('${ev.id}')">
+          ${ev.flyer_url
+            ? `<img class="event-flyer" src="${ev.flyer_url}" alt="${ev.name}" loading="lazy">`
+            : `<div class="event-flyer-placeholder"><div class="event-flyer-placeholder-text">ROCA</div></div>`
+          }
+          <div class="event-body">
+            <div class="event-date">${dateStr} · ${timeStr}hs</div>
+            <div class="event-name">${ev.name}</div>
+            <div class="event-venue">${ev.venue}</div>
+            <div class="event-footer">
+              <div>
+                <div class="event-price-label">desde</div>
+                <div class="event-price">$${minPrice.toLocaleString('es-AR')}</div>
+              </div>
+              <button class="event-btn">ENTRADAS</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+  } catch (e) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div style="font-size:13px;color:#cc3333;">Error al cargar eventos.<br>Verificá tu conexión.</div>
+      </div>`;
+  }
+}
+
+// ── MODAL ──
+function openModal(eventId) {
+  const ev = allEvents.find(e => e.id === eventId);
+  if (!ev) return;
+
+  currentEvent = ev;
+  currentTicketType = null;
+  currentQty = 1;
+
+  const d = new Date(ev.date);
+  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+  const timeStr = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+  document.getElementById('modal-date').textContent = `${dateStr} · ${timeStr}HS`;
+  document.getElementById('modal-name').textContent = ev.name;
+  document.getElementById('modal-venue').textContent = ev.venue;
+  document.getElementById('buyer-name').value = '';
+  document.getElementById('buyer-email').value = '';
+  document.getElementById('form-error').style.display = 'none';
+  document.getElementById('modal-total').textContent = '$0';
+
+  const types = ev.ticket_types || [];
+  document.getElementById('ticket-types-list').innerHTML = types.length === 0
+    ? '<div style="font-size:13px;color:var(--mid);padding:10px 0;">Sin entradas disponibles.</div>'
+    : types.map(t => {
+        const avail = t.total_quantity - (t.sold_quantity || 0);
+        return `
+          <div class="ticket-row" id="tr-${t.id}" onclick="selectTicket('${t.id}')">
+            <div class="ticket-row-left">
+              <div class="ticket-row-name">${t.name}</div>
+              <div class="ticket-row-avail">${avail > 0 ? avail + ' disponibles' : 'Agotado'}</div>
+            </div>
+            <div class="ticket-row-right">
+              <div class="ticket-row-price">$${t.price.toLocaleString('es-AR')}</div>
+              <div class="qty-control" id="qc-${t.id}">
+                <button class="qty-btn" onclick="event.stopPropagation();changeQty(-1)">−</button>
+                <div class="qty-num" id="qn-${t.id}">1</div>
+                <button class="qty-btn" onclick="event.stopPropagation();changeQty(1)">+</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+  document.getElementById('purchase-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function selectTicket(ttId) {
+  const ev = currentEvent;
+  if (!ev) return;
+
+  (ev.ticket_types || []).forEach(t => {
+    document.getElementById('qc-' + t.id).classList.remove('visible');
+    document.getElementById('tr-' + t.id).classList.remove('selected');
+  });
+
+  currentTicketType = (ev.ticket_types || []).find(t => t.id === ttId);
+  currentQty = 1;
+
+  if (currentTicketType) {
+    document.getElementById('qc-' + ttId).classList.add('visible');
+    document.getElementById('tr-' + ttId).classList.add('selected');
+    document.getElementById('qn-' + ttId).textContent = '1';
+  }
+  updateTotal();
+}
+
+function changeQty(delta) {
+  if (!currentTicketType) return;
+  const avail = currentTicketType.total_quantity - (currentTicketType.sold_quantity || 0);
+  currentQty = Math.max(1, Math.min(avail, currentQty + delta));
+  document.getElementById('qn-' + currentTicketType.id).textContent = currentQty;
+  updateTotal();
+}
+
+function updateTotal() {
+  if (!currentTicketType) {
+    document.getElementById('modal-total').textContent = '$0';
+    return;
+  }
+  const total = currentTicketType.price * currentQty;
+  document.getElementById('modal-total').textContent = '$' + total.toLocaleString('es-AR');
+}
+
+function closeModal() {
+  document.getElementById('purchase-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('purchase-modal')) closeModal();
+}
+
+// ── CHECKOUT ──
+async function startCheckout() {
+  const name  = document.getElementById('buyer-name').value.trim();
+  const email = document.getElementById('buyer-email').value.trim();
+  const errEl = document.getElementById('form-error');
+  errEl.style.display = 'none';
+
+  if (!currentTicketType) { showError('Seleccioná un tipo de entrada.'); return; }
+  if (!name)              { showError('Ingresá tu nombre.'); return; }
+  if (!email || !email.includes('@')) { showError('Ingresá un email válido.'); return; }
+
+  const avail = currentTicketType.total_quantity - (currentTicketType.sold_quantity || 0);
+  if (avail <= 0) { showError('Esta entrada está agotada.'); return; }
+
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+
+  try {
+    const promoterId = promoterData ? promoterData.id : null;
+
+    const { data: order, error } = await sb.from('orders').insert({
+      event_id:       currentEvent.id,
+      ticket_type_id: currentTicketType.id,
+      promoter_id:    promoterId,
+      buyer_name:     name,
+      buyer_email:    email,
+      quantity:       currentQty,
+      total_amount:   currentTicketType.price * currentQty,
+      status:         'pending'
+    }).select().single();
+
+    if (error) throw error;
+
+    // ── Redirect to Mercado Pago ──
+    // Once you configure your MP Access Token in Vercel env vars,
+    // this call will go to /api/create-preference with the order id.
+    const res = await fetch('/api/create-preference', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: order.id })
+    });
+
+    if (!res.ok) throw new Error('Error MP');
+
+    const { init_point } = await res.json();
+    window.location.href = init_point;
+
+  } catch (e) {
+    showError('Hubo un error al procesar el pago. Intentá de nuevo.');
+    btn.disabled = false;
+    btn.innerHTML = 'PAGAR CON <span class="mp-badge">MP</span>';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('form-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ── PAGES ──
+function showPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (page !== 'staff') stopScanner();
+}
+
+// ── STAFF / PIN ──
+function pinPress(num) {
+  if (pinValue.length >= 4) return;
+  pinValue += num;
+  renderPin();
+  if (pinValue.length === 4) setTimeout(checkPin, 180);
+}
+
+function pinDel() {
+  pinValue = pinValue.slice(0, -1);
+  renderPin();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function renderPin() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('pd-' + i).classList.toggle('filled', i < pinValue.length);
+  }
+}
+
+async function checkPin() {
+  const { data } = await sb.from('staff').select('name').eq('pin', pinValue).eq('is_active', true).single();
+  if (data) {
+    document.getElementById('staff-login').style.display = 'none';
+    document.getElementById('scanner-wrap').classList.add('visible');
+    startScanner();
+  } else {
+    document.getElementById('pin-error').textContent = 'PIN incorrecto. Intentá de nuevo.';
+    pinValue = '';
+    renderPin();
+  }
+}
+
+function staffLogout() {
+  stopScanner();
+  pinValue = '';
+  renderPin();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('staff-login').style.display = 'block';
+  document.getElementById('scanner-wrap').classList.remove('visible');
+  document.getElementById('scan-result').classList.remove('visible', 'valid', 'invalid', 'used');
+}
+
+// ── SCANNER ──
+async function startScanner() {
+  const video   = document.getElementById('scanner-video');
+  const canvas  = document.getElementById('scanner-canvas');
+  const frame   = document.getElementById('scanner-frame');
+
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 1280 } }
+    });
+    video.srcObject = scanStream;
+    await video.play();
+
+    scanInterval = setInterval(() => {
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+      if (code && code.data && !scanCooldown) {
+        handleQRScan(code.data);
+      }
+    }, 300);
+
+  } catch (e) {
+    frame.innerHTML = `
+      <div class="camera-error" style="position:absolute;inset:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
+        <div class="camera-error-title">SIN CÁMARA</div>
+        <div class="camera-error-text">No se pudo acceder a la cámara.<br>Usá el campo manual.</div>
+      </div>`;
+  }
+}
+
+function stopScanner() {
+  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+  if (scanStream)   { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+}
+
+async function handleQRScan(code) {
+  if (scanCooldown || code === lastScannedCode) return;
+  lastScannedCode = code;
+  scanCooldown = true;
+  await validateQR(code);
+  setTimeout(() => {
+    scanCooldown = false;
+    lastScannedCode = null;
+  }, 3500);
+}
+
+function manualValidate() {
+  const code = document.getElementById('manual-qr').value.trim();
+  if (!code) return;
+  validateQR(code);
+  document.getElementById('manual-qr').value = '';
+}
+
+async function validateQR(code) {
+  const resultEl = document.getElementById('scan-result');
+  const statusEl = document.getElementById('scan-status');
+  const detailEl = document.getElementById('scan-detail');
+
+  resultEl.className = 'scan-result visible';
+
+  const { data: ticket } = await sb
+    .from('tickets')
+    .select('*, events(name), ticket_types(name)')
+    .eq('qr_code', code)
+    .single();
+
+  if (!ticket) {
+    resultEl.classList.add('invalid');
+    statusEl.textContent = 'INVÁLIDA';
+    detailEl.textContent = 'QR no encontrado en el sistema';
+    return;
+  }
+
+  if (ticket.is_used) {
+    resultEl.classList.add('used');
+    statusEl.textContent = 'YA USADA';
+    detailEl.textContent = `${ticket.buyer_name} · usada el ${new Date(ticket.used_at).toLocaleString('es-AR')}`;
+    return;
+  }
+
+  await sb.from('tickets').update({
+    is_used: true,
+    used_at: new Date().toISOString()
+  }).eq('id', ticket.id);
+
+  resultEl.classList.add('valid');
+  statusEl.textContent = 'VÁLIDA';
+  detailEl.textContent = `${ticket.buyer_name} · ${ticket.ticket_types?.name || ''} · ${ticket.events?.name || ''}`;
+
+  setTimeout(() => {
+    resultEl.classList.remove('visible', 'valid', 'invalid', 'used');
+  }, 4000);
+}
+
+init();
+</script>
+</body>
+</html>
