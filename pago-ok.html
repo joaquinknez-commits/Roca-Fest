@@ -33,7 +33,7 @@
     justify-content: center;
     min-height: 100vh;
   }
-  .check-circle {
+  .icon-wrap {
     width: 72px; height: 72px;
     border-radius: 50%;
     background: var(--black);
@@ -47,7 +47,7 @@
     from { transform: scale(0); opacity: 0; }
     to   { transform: scale(1); opacity: 1; }
   }
-  .check-icon {
+  .icon-wrap svg {
     width: 32px; height: 32px;
     stroke: white;
     fill: none;
@@ -59,7 +59,6 @@
     font-family: var(--font-display);
     font-size: 42px;
     letter-spacing: 4px;
-    color: var(--black);
     text-align: center;
     margin-bottom: 12px;
     animation: fadeUp 0.4s ease 0.15s both;
@@ -70,7 +69,7 @@
     color: var(--mid);
     text-align: center;
     line-height: 1.7;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
     animation: fadeUp 0.4s ease 0.25s both;
   }
   @keyframes fadeUp {
@@ -83,7 +82,7 @@
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 20px;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
     font-size: 13px;
     color: var(--mid);
     text-align: center;
@@ -106,29 +105,115 @@
     text-decoration: none;
     animation: fadeUp 0.4s ease 0.45s both;
   }
+  .processing {
+    font-size: 13px;
+    color: var(--mid);
+    text-align: center;
+    margin-bottom: 16px;
+    animation: fadeUp 0.4s ease 0.2s both;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    border-top-color: var(--black);
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div class="check-circle">
-  <svg class="check-icon" viewBox="0 0 24 24">
-    <polyline points="20 6 9 17 4 12"></polyline>
-  </svg>
+<div class="icon-wrap">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
 </div>
 
 <div class="title">¡LISTO!</div>
+<div class="subtitle" id="subtitle">Procesando tu entrada...</div>
 
-<div class="subtitle">
-  Tu pago fue aprobado.<br>
-  Te enviamos el QR de tu entrada al mail.
+<div id="processing-state">
+  <div class="spinner"></div>
+  <div class="processing">Generando tu QR...</div>
 </div>
 
-<div class="card">
-  Revisá tu casilla de correo (y el spam por las dudas).<br>
-  Presentá el QR en la puerta el día del evento.
+<div id="success-state" style="display:none;width:100%;">
+  <div class="card">
+    Te enviamos el QR de tu entrada al mail.<br>
+    Revisá tu casilla (y el spam por las dudas).<br>
+    Presentá el QR en la puerta el día del evento.
+  </div>
+  <a href="/" class="home-btn">VER MÁS EVENTOS</a>
 </div>
 
-<a href="/" class="home-btn">VER MÁS EVENTOS</a>
+<div id="error-state" style="display:none;width:100%;">
+  <div class="card" style="color:#cc3333;background:#fff5f5;border-color:#ffd0d0;">
+    Hubo un problema procesando tu entrada.<br>
+    Pero tu pago fue recibido. Te contactaremos pronto.
+  </div>
+  <a href="/" class="home-btn">VOLVER AL INICIO</a>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb214c3pxcGlrcXN2Y3JmdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNTIxNTIsImV4cCI6MjA5MDkyODE1Mn0.uZhKgDTChxc2RIPq4xLnMHwQ8ntthTSdXyXEu8vkThs';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params = new URLSearchParams(window.location.search);
+const orderId = params.get('order');
+const paymentId = params.get('payment_id');
+const status = params.get('status');
+
+async function processTicket() {
+  if (!orderId || status !== 'approved') {
+    showError();
+    return;
+  }
+
+  try {
+    // Check if ticket already exists
+    const { data: existing } = await sb
+      .from('tickets')
+      .select('id')
+      .eq('order_id', orderId);
+
+    if (existing && existing.length > 0) {
+      // Ticket already created (webhook got there first)
+      showSuccess();
+      return;
+    }
+
+    // Call our process endpoint
+    const res = await fetch('/api/process-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, paymentId })
+    });
+
+    if (res.ok) {
+      showSuccess();
+    } else {
+      showError();
+    }
+  } catch(e) {
+    showError();
+  }
+}
+
+function showSuccess() {
+  document.getElementById('subtitle').textContent = 'Tu pago fue aprobado.';
+  document.getElementById('processing-state').style.display = 'none';
+  document.getElementById('success-state').style.display = 'block';
+}
+
+function showError() {
+  document.getElementById('subtitle').textContent = 'Pago recibido.';
+  document.getElementById('processing-state').style.display = 'none';
+  document.getElementById('error-state').style.display = 'block';
+}
+
+processTicket();
+</script>
 </body>
 </html>
