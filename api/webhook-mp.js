@@ -27,7 +27,8 @@ module.exports = async function handler(req, res) {
     const payment = await mpRes.json();
 
     console.log('PAYMENT:', JSON.stringify({ status: payment.status, external_reference: payment.external_reference, id: payment.id }));
-if (payment.status !== 'approved') return res.status(200).json({ ok: true, status: payment.status });
+
+    if (payment.status !== 'approved') return res.status(200).json({ ok: true });
 
     const orderId = payment.external_reference;
     if (!orderId) return res.status(200).json({ ok: true });
@@ -40,6 +41,21 @@ if (payment.status !== 'approved') return res.status(200).json({ ok: true, statu
     if (!orders || orders.length === 0) return res.status(200).json({ ok: true });
     const order = orders[0];
 
+    // Verificar si ya tiene tickets — si sí, solo mandar el mail si no fue enviado
+    const ticketRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/tickets?order_id=eq.${orderId}&select=*`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    const existingTickets = await ticketRes.json();
+
+    if (existingTickets && existingTickets.length > 0) {
+      // Tickets ya creados por process-payment, solo mandar mail
+      console.log('Tickets already exist, sending email only');
+      await sendEmail(order, existingTickets, RESEND_KEY);
+      return res.status(200).json({ ok: true });
+    }
+
+    // Si no hay tickets, crear todo desde cero
     if (order.status === 'paid') return res.status(200).json({ ok: true });
 
     await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}`, {
@@ -65,18 +81,17 @@ if (payment.status !== 'approved') return res.status(200).json({ ok: true, statu
 
     const tickets = [];
     for (let i = 0; i < order.quantity; i++) {
-      const qrCode = require('crypto').randomUUID();
       tickets.push({
         order_id: orderId,
         event_id: order.event_id,
         ticket_type_id: order.ticket_type_id,
         buyer_name: order.buyer_name,
         buyer_email: order.buyer_email,
-        qr_code: qrCode
+        qr_code: require('crypto').randomUUID()
       });
     }
 
-    const ticketRes = await fetch(`${SUPABASE_URL}/rest/v1/tickets`, {
+    const newTicketRes = await fetch(`${SUPABASE_URL}/rest/v1/tickets`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
@@ -86,7 +101,7 @@ if (payment.status !== 'approved') return res.status(200).json({ ok: true, statu
       },
       body: JSON.stringify(tickets)
     });
-    const insertedTickets = await ticketRes.json();
+    const insertedTickets = await newTicketRes.json();
 
     if (insertedTickets && insertedTickets.length > 0) {
       await sendEmail(order, insertedTickets, RESEND_KEY);
@@ -95,6 +110,7 @@ if (payment.status !== 'approved') return res.status(200).json({ ok: true, statu
     return res.status(200).json({ ok: true });
 
   } catch (e) {
+    console.error('Webhook error:', e.message);
     return res.status(500).json({ error: e.message });
   }
 };
