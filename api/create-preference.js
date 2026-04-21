@@ -4,7 +4,7 @@ module.exports = async function handler(req, res) {
   const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb214c3pxcGlrcXN2Y3JmdXBiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTM1MjE1MiwiZXhwIjoyMDkwOTI4MTUyfQ.wmJl_ZaOy6XnOXcxUYY1Ad2ZkJLXEU4YX6fW7s34Sv8';
   const MP_TOKEN = 'APP_USR-4243972737547638-040423-a2ff61e68570ca76f0ed6d6a953578db-772975227';
-  const BASE_URL = 'https://roca-fest-o4da0x6nf-joaquinknez-7713s-projects.vercel.app';
+  const BASE_URL = 'https://roca-fest.vercel.app';
 
   try {
     const { orderId } = req.body;
@@ -12,14 +12,8 @@ module.exports = async function handler(req, res) {
 
     const orderRes = await fetch(
       `${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=*,events(name,date),ticket_types(name,price)`,
-      {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`
-        }
-      }
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
     );
-
     const orders = await orderRes.json();
     if (!orders || orders.length === 0) return res.status(404).json({ error: 'Order not found' });
     const order = orders[0];
@@ -37,10 +31,7 @@ module.exports = async function handler(req, res) {
           unit_price: Number(order.ticket_types.price),
           currency_id: 'ARS'
         }],
-        payer: {
-          name: order.buyer_name,
-          email: order.buyer_email
-        },
+        payer: { name: order.buyer_name, email: order.buyer_email },
         external_reference: orderId,
         back_urls: {
           success: `${BASE_URL}/pago-ok.html?order=${orderId}`,
@@ -54,10 +45,7 @@ module.exports = async function handler(req, res) {
     });
 
     const mpData = await mpRes.json();
-
-    if (!mpData.init_point) {
-      return res.status(500).json({ error: 'MP error', detail: mpData });
-    }
+    if (!mpData.init_point) return res.status(500).json({ error: 'MP error', detail: mpData });
 
     await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}`, {
       method: 'PATCH',
@@ -67,7 +55,7 @@ module.exports = async function handler(req, res) {
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({ mp_payment_id: String(mpData.id) })
+      body: JSON.stringify({ mp_payment_id: mpData.id })
     });
 
     return res.status(200).json({ init_point: mpData.init_point });
