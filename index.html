@@ -1111,7 +1111,7 @@ async function startCheckout() {
     const res = await fetch('/api/create-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId: order.id })
+      body: JSON.stringify({ orderId: order.id, mpTotal: Math.round(currentTicketType.price * currentQty * 1.06) })
     });
 
     if (!res.ok) throw new Error('Error MP');
