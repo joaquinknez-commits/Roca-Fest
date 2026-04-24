@@ -10,6 +10,13 @@ module.exports = async function handler(req, res) {
     if (!requestId || !action) return res.status(400).json({ error: 'Missing params' });
 
     if (action === 'reject') {
+      const reqRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/transfer_requests?id=eq.${requestId}&select=*,events(name),ticket_types(name)`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+      );
+      const reqs = await reqRes.json();
+      const transfer = reqs[0];
+
       await fetch(`${SUPABASE_URL}/rest/v1/transfer_requests?id=eq.${requestId}`, {
         method: 'PATCH',
         headers: {
@@ -20,10 +27,52 @@ module.exports = async function handler(req, res) {
         },
         body: JSON.stringify({ status: 'rejected' })
       });
+
+      if (transfer) {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${RESEND_KEY}`
+          },
+          body: JSON.stringify({
+            from: 'ROCA Entradas <entradas@roccaeventos.com.ar>',
+            to: transfer.buyer_email,
+            subject: `Tu comprobante no pudo verificarse — ROCA`,
+            html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f7f7f5;font-family:Arial,sans-serif;">
+  <div style="max-width:480px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e0e0de;">
+    <div style="background:#0f0f0f;padding:32px;text-align:center;">
+      <div style="font-size:11px;letter-spacing:4px;color:#777;margin-bottom:8px;">BUENOS AIRES</div>
+      <div style="font-size:72px;font-weight:900;letter-spacing:8px;color:#fff;line-height:1;">ROCA</div>
+    </div>
+    <div style="padding:32px;">
+      <div style="font-size:24px;font-weight:700;color:#0f0f0f;margin-bottom:16px;">Hola ${transfer.buyer_name}</div>
+      <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:16px;">
+        No pudimos verificar tu comprobante de transferencia para <strong>${transfer.events?.name || 'ROCA'}</strong>.
+      </p>
+      <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:24px;">
+        Por favor volvé a intentarlo asegurandote de adjuntar una captura clara y legible del comprobante, o comunicate con nosotros.
+      </p>
+      <div style="background:#fff5f5;border:1px solid #ffd0d0;border-radius:10px;padding:16px;font-size:13px;color:#cc3333;text-align:center;margin-bottom:24px;">
+        Comprobante no aprobado
+      </div>
+      <div style="background:#f7f7f5;border-radius:10px;padding:16px;font-size:12px;color:#aaa;text-align:center;line-height:1.6;">
+        Si crees que es un error, respondé este mail o contactanos.
+      </div>
+    </div>
+    <div style="padding:20px 32px;border-top:1px solid #eee;text-align:center;">
+      <div style="font-size:11px;color:#aaa;letter-spacing:1px;">ROCA · ENTRADAS OFICIALES</div>
+    </div>
+  </div>
+</body></html>`
+          })
+        });
+      }
+
       return res.status(200).json({ ok: true });
     }
 
-    // Buscar la solicitud
     const reqRes = await fetch(
       `${SUPABASE_URL}/rest/v1/transfer_requests?id=eq.${requestId}&select=*,ticket_types(name,price),events(name,date,venue)`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
@@ -34,7 +83,6 @@ module.exports = async function handler(req, res) {
 
     if (transfer.status === 'approved') return res.status(200).json({ ok: true, already: true });
 
-    // Marcar como aprobada
     await fetch(`${SUPABASE_URL}/rest/v1/transfer_requests?id=eq.${requestId}`, {
       method: 'PATCH',
       headers: {
@@ -46,7 +94,6 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({ status: 'approved' })
     });
 
-    // Crear orden
     const orderRes = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
       method: 'POST',
       headers: {
@@ -70,7 +117,6 @@ module.exports = async function handler(req, res) {
     const orders = await orderRes.json();
     const order = orders[0];
 
-    // Actualizar stock
     await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_sold`, {
       method: 'POST',
       headers: {
@@ -81,7 +127,6 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({ ticket_type_id: transfer.ticket_type_id, amount: transfer.quantity })
     });
 
-    // Generar tickets
     const tickets = [];
     for (let i = 0; i < transfer.quantity; i++) {
       tickets.push({
@@ -106,7 +151,6 @@ module.exports = async function handler(req, res) {
     });
     const insertedTickets = await ticketRes.json();
 
-    // Mandar mail
     await sendEmail(transfer, insertedTickets, RESEND_KEY);
 
     return res.status(200).json({ ok: true });
@@ -119,8 +163,9 @@ module.exports = async function handler(req, res) {
 async function sendEmail(transfer, tickets, RESEND_KEY) {
   const event = transfer.events;
   const d = new Date(event.date);
-  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const timeStr = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  const tz = 'America/Argentina/Buenos_Aires';
+  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: tz });
+  const timeStr = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: tz });
 
   const ticketHtml = tickets.map((t, i) => `
     <div style="text-align:center;padding:24px 0;border-bottom:1px solid #eeeeec;">
