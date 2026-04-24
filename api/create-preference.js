@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
         items: [{
           title: `${order.ticket_types.name} — ${order.events.name}`,
           quantity: order.quantity,
-          unit_price: Number(order.ticket_types.price),
+          unit_price: Math.round(order.total_amount / order.quantity),
           currency_id: 'ARS'
         }],
         payer: { name: order.buyer_name, email: order.buyer_email },
