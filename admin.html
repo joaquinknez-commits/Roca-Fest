@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROCA — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --white: #ffffff; --off-white: #f7f7f5; --light: #eeeeec;
+  --mid: #aaaaaa; --dark: #333; --black: #0f0f0f; --border: #e0e0de;
+  --green: #1a7a3a; --green-bg: #f0faf4; --green-border: #b0ddc0;
+  --red: #cc3333; --red-bg: #fff5f5; --red-border: #ffd0d0;
+  --font-display: 'Bebas Neue', sans-serif; --font-body: 'DM Sans', sans-serif;
+}
+html, body { background: var(--off-white); color: var(--black); font-family: var(--font-body); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* LOGIN */
+.login-wrap { max-width: 400px; margin: 80px auto; padding: 0 24px; }
+.login-title { font-family: var(--font-display); font-size: 48px; letter-spacing: 4px; margin-bottom: 8px; }
+.login-sub { font-size: 13px; color: var(--mid); margin-bottom: 32px; }
+.form-input { width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; color: var(--black); font-family: var(--font-body); font-size: 15px; margin-bottom: 14px; outline: none; transition: border-color 0.15s; }
+.form-input:focus { border-color: var(--dark); }
+.form-label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); margin-bottom: 8px; }
+.btn { width: 100%; background: var(--black); color: var(--white); border: none; border-radius: 10px; padding: 16px; font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; cursor: pointer; transition: opacity 0.15s; }
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-sm { width: auto; padding: 8px 18px; font-size: 14px; border-radius: 8px; }
+.btn-outline { background: none; color: var(--black); border: 1px solid var(--border); }
+.btn-outline:hover { background: var(--light); opacity: 1; }
+.btn-green { background: var(--green); }
+.btn-red { background: var(--red); }
+.login-error { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 20px; }
+
+/* ADMIN LAYOUT */
+.admin-wrap { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+.admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.admin-title { font-family: var(--font-display); font-size: 36px; letter-spacing: 3px; }
+.admin-subtitle { font-size: 12px; color: var(--mid); margin-top: 2px; }
+
+/* TABS */
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--white); border-radius: 12px; padding: 4px; border: 1px solid var(--border); }
+.tab { flex: 1; text-align: center; padding: 10px; font-size: 11px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mid); cursor: pointer; border-radius: 8px; transition: all 0.15s; border: none; background: none; font-family: var(--font-body); }
+.tab.active { background: var(--black); color: var(--white); }
+
+/* PANELS */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* CARDS */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 14px; }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.card-name { font-weight: 500; font-size: 15px; color: var(--black); margin-bottom: 3px; }
+.card-email { font-size: 13px; color: var(--mid); }
+.card-meta { font-size: 12px; color: var(--mid); margin-top: 4px; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; }
+.badge-pending { background: #fff8e6; color: #b87800; border: 1px solid #ffdfa0; }
+.badge-approved { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badge-rejected { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+
+/* COMPROBANTE */
+.comprobante-wrap { margin: 12px 0; }
+.comprobante-img { width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; display: block; }
+.comprobante-placeholder { background: var(--off-white); border: 1px solid var(--border); border-radius: 8px; padding: 20px; text-align: center; font-size: 13px; color: var(--mid); }
+
+/* ACTION BTNS */
+.action-btns { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.stat-label { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; }
+.stat-value { font-family: var(--font-display); font-size: 32px; letter-spacing: 2px; color: var(--black); }
+
+/* PROMOTERS TABLE */
+.table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.table-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); align-items: center; font-size: 13px; }
+.table-row:last-child { border-bottom: none; }
+.table-header { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); background: var(--off-white); }
+.promoter-link { font-size: 12px; color: var(--mid); font-family: monospace; }
+
+/* FORM SECTION */
+.form-section { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.form-section-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 2px; margin-bottom: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 14px; }
+.copy-field { display: flex; gap: 8px; align-items: center; }
+.copy-field input { flex: 1; margin-bottom: 0; }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--black); color: var(--white); padding: 12px 24px; border-radius: 10px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+.toast.show { opacity: 1; }
+
+/* MODAL */
+.img-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center; }
+.img-modal.open { display: flex; }
+.img-modal img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+.img-modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+
+.empty-state { text-align: center; padding: 40px; color: var(--mid); font-size: 13px; }
+.loading-ring { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--black); animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-wrap" class="login-wrap">
+  <div class="login-title">ADMIN</div>
+  <div class="login-sub">Panel de administración ROCA</div>
+  <label class="form-label">Contraseña</label>
+  <input type="password" class="form-input" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+  <button class="btn" onclick="doLogin()">INGRESAR</button>
+  <div class="login-error" id="login-error"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-wrap" class="admin-wrap">
+  <div class="admin-header">
+    <div>
+      <div class="admin-title">ROCA ADMIN</div>
+      <div class="admin-subtitle">Panel de administración</div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="doLogout()">Salir</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('transfers', this)">Transferencias</button>
+    <button class="tab" onclick="showTab('manual', this)">Entrada manual</button>
+    <button class="tab" onclick="showTab('promoters', this)">Promotores</button>
+    <button class="tab" onclick="showTab('stats', this)">Ventas</button>
+    <button class="tab" onclick="showTab('settings', this)">Config</button>
+  </div>
+
+  <!-- TRANSFERS -->
+  <div id="panel-transfers" class="panel active">
+    <div id="transfers-list">
+      <div class="empty-state"><div class="loading-ring"></div>Cargando...</div>
+    </div>
+  </div>
+
+  <!-- MANUAL TICKET -->
+  <div id="panel-manual" class="panel">
+    <div class="form-section">
+      <div class="form-section-title">GENERAR ENTRADA</div>
+      <div class="form-group">
+        <label class="form-label">Nombre completo</label>
+        <input type="text" class="form-input" id="manual-name" placeholder="Juan García">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="manual-email" placeholder="juan@email.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo de entrada</label>
+          <select class="form-input" id="manual-ticket-type" style="margin-bottom:0;cursor:pointer;">
+            <option value="">Cargando...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cantidad</label>
+          <input type="number" class="form-input" id="manual-qty" value="1" min="1" max="10" style="margin-bottom:0;">
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn" id="manual-btn" onclick="createManualTicket()">GENERAR Y ENVIAR QR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROMOTERS -->
+  <div id="panel-promoters" class="panel">
+    <div class="form-section" style="margin-bottom:20px;">
+      <div class="form-section-title">AGREGAR PROMOTOR</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-input" id="promo-name" placeholder="Juan García" style="margin-bottom:0;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Slug (para el link)</label>
+          <input type="text" class="form-input" id="promo-slug" placeholder="juan" style="margin-bottom:0;">
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label class="form-label">Email (opcional)</label>
+        <input type="email" class="form-input" id="promo-email" placeholder="juan@email.com">
+      </div>
+      <button class="btn btn-sm" onclick="createPromoter()">AGREGAR</button>
+    </div>
+    <div id="promoters-list">
+      <div class="empty-state"><div class="loading-ring"></div>Cargando...</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="panel-stats" class="panel">
+    <div id="stats-content">
+      <div class="empty-state"><div class="loading-ring"></div>Cargando...</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="panel-settings" class="panel">
+    <div class="form-section">
+      <div class="form-section-title">DATOS BANCARIOS</div>
+      <div class="form-group">
+        <label class="form-label">CBU</label>
+        <input type="text" class="form-input" id="bank-cbu" placeholder="CBU">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alias</label>
+        <input type="text" class="form-input" id="bank-alias" placeholder="Alias">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Titular</label>
+        <input type="text" class="form-input" id="bank-titular" placeholder="Nombre del titular">
+      </div>
+      <button class="btn btn-sm" onclick="saveBankInfo()">GUARDAR CAMBIOS</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="img-modal" id="img-modal" onclick="closeImgModal()">
+  <button class="img-modal-close" onclick="closeImgModal()">✕</button>
+  <img id="img-modal-src" src="" alt="Comprobante">
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PASS = 'Salamandra123';
+const BASE_URL = 'https://roca-fest.vercel.app';
+const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb214c3pxcGlrcXN2Y3JmdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNTIxNTIsImV4cCI6MjA5MDkyODE1Mn0.uZhKgDTChxc2RIPq4xLnMHwQ8ntthTSdXyXEu8vkThs';
+
+let isLoggedIn = false;
+
+function doLogin() {
+  const pass = document.getElementById('login-password').value;
+  if (pass === ADMIN_PASS) {
+    isLoggedIn = true;
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('admin-wrap').style.display = 'block';
+    loadTransfers();
+    loadTicketTypes();
+    loadBankInfo();
+  } else {
+    document.getElementById('login-error').textContent = 'Contraseña incorrecta';
+  }
+}
+
+function doLogout() {
+  isLoggedIn = false;
+  document.getElementById('login-wrap').style.display = 'block';
+  document.getElementById('admin-wrap').style.display = 'none';
+  document.getElementById('login-password').value = '';
+}
+
+function showTab(tab, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  btn.classList.add('active');
+
+  if (tab === 'transfers') loadTransfers();
+  if (tab === 'promoters') loadPromoters();
+  if (tab === 'stats') loadStats();
+  if (tab === 'settings') loadBankInfo();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── TRANSFERS ──
+async function loadTransfers() {
+  const list = document.getElementById('transfers-list');
+  list.innerHTML = '<div class="empty-state"><div class="loading-ring"></div>Cargando...</div>';
+
+  const res = await fetch('/api/admin-data?action=transfers');
+  const transfers = await res.json();
+
+  if (!transfers || transfers.length === 0) {
+    list.innerHTML = '<div class="empty-state">Sin solicitudes de transferencia aún.</div>';
+    return;
+  }
+
+  const pending = transfers.filter(t => t.status === 'pending');
+  const others = transfers.filter(t => t.status !== 'pending');
+  const all = [...pending, ...others];
+
+  list.innerHTML = all.map(t => {
+    const d = new Date(t.created_at);
+    const dateStr = d.toLocaleDateString('es-AR') + ' ' + d.toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
+    const badgeClass = t.status === 'pending' ? 'badge-pending' : t.status === 'approved' ? 'badge-approved' : 'badge-rejected';
+    const badgeText = t.status === 'pending' ? 'Pendiente' : t.status === 'approved' ? 'Aprobado' : 'Rechazado';
+
+    return `
+      <div class="card" id="transfer-${t.id}">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${t.buyer_name}</div>
+            <div class="card-email">${t.buyer_email}</div>
+            <div class="card-meta">${t.ticket_types?.name || ''} × ${t.quantity} · $${(t.total_amount || 0).toLocaleString('es-AR')} · ${dateStr}</div>
+          </div>
+          <span class="badge ${badgeClass}">${badgeText}</span>
+        </div>
+        ${t.comprobante_url
+          ? `<div class="comprobante-wrap">
+              <img class="comprobante-img" src="#" data-path="${t.comprobante_url}" onclick="openComprobante('${t.comprobante_url}')" alt="Comprobante" id="img-${t.id}">
+            </div>`
+          : `<div class="comprobante-placeholder">Sin comprobante adjunto</div>`
+        }
+        ${t.status === 'pending' ? `
+          <div class="action-btns">
+            <button class="btn btn-sm btn-green" onclick="handleTransfer('${t.id}', 'approve')">✓ Aprobar y enviar QR</button>
+            <button class="btn btn-sm btn-red btn-outline" onclick="handleTransfer('${t.id}', 'reject')">✗ Rechazar</button>
+          </div>` : ''}
+      </div>`;
+  }).join('');
+
+  // Cargar imágenes de comprobantes
+  all.forEach(t => {
+    if (t.comprobante_url) {
+      loadComprobanteImg(t.id, t.comprobante_url);
+    }
+  });
+}
+
+async function loadComprobanteImg(transferId, path) {
+  try {
+    const res = await fetch('/api/admin-data?action=comprobante_url&path=' + encodeURIComponent(path));
+    const data = await res.json();
+    const img = document.getElementById('img-' + transferId);
+    if (img && data.url) img.src = data.url;
+  } catch(e) {}
+}
+
+async function openComprobante(path) {
+  const res = await fetch('/api/admin-data?action=comprobante_url&path=' + encodeURIComponent(path));
+  const data = await res.json();
+  if (data.url) {
+    document.getElementById('img-modal-src').src = data.url;
+    document.getElementById('img-modal').classList.add('open');
+  }
+}
+
+function closeImgModal() {
+  document.getElementById('img-modal').classList.remove('open');
+}
+
+async function handleTransfer(id, action) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = action === 'approve' ? 'Procesando...' : 'Rechazando...';
+
+  const res = await fetch('/api/approve-transfer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requestId: id, action })
+  });
+
+  if (res.ok) {
+    showToast(action === 'approve' ? '✓ QR enviado al comprador' : 'Solicitud rechazada');
+    loadTransfers();
+  } else {
+    showToast('Error al procesar');
+    btn.disabled = false;
+  }
+}
+
+// ── MANUAL TICKET ──
+async function loadTicketTypes() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/ticket_types?select=*`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  const types = await res.json();
+  const sel = document.getElementById('manual-ticket-type');
+  sel.innerHTML = types.map(t => `<option value="${t.id}">${t.name} — $${t.price.toLocaleString('es-AR')}</option>`).join('');
+}
+
+async function createManualTicket() {
+  const name = document.getElementById('manual-name').value.trim();
+  const email = document.getElementById('manual-email').value.trim();
+  const ticketTypeId = document.getElementById('manual-ticket-type').value;
+  const qty = document.getElementById('manual-qty').value;
+
+  if (!name || !email || !ticketTypeId) { showToast('Completá todos los campos'); return; }
+
+  const btn = document.getElementById('manual-btn');
+  btn.disabled = true;
+  btn.textContent = 'Generando...';
+
+  const res = await fetch('/api/admin-data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'create_manual_ticket', buyer_name: name, buyer_email: email, ticket_type_id: ticketTypeId, quantity: qty })
+  });
+
+  if (res.ok) {
+    showToast('✓ Entrada generada y QR enviado');
+    document.getElementById('manual-name').value = '';
+    document.getElementById('manual-email').value = '';
+    document.getElementById('manual-qty').value = '1';
+  } else {
+    showToast('Error al generar entrada');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'GENERAR Y ENVIAR QR';
+}
+
+// ── PROMOTERS ──
+async function loadPromoters() {
+  const list = document.getElementById('promoters-list');
+  const res = await fetch('/api/admin-data?action=promoters');
+  const promoters = await res.json();
+
+  if (!promoters || promoters.length === 0) {
+    list.innerHTML = '<div class="empty-state">Sin promotores aún.</div>';
+    return;
+  }
+
+  list.innerHTML = `
+    <div class="table-wrap">
+      <div class="table-row table-header">
+        <div>Nombre</div>
+        <div>Link</div>
+        <div>Copiar</div>
+      </div>
+      ${promoters.map(p => `
+        <div class="table-row">
+          <div style="font-weight:500;">${p.name}</div>
+          <div class="promoter-link">?ref=${p.slug}</div>
+          <button class="btn btn-outline btn-sm" onclick="copyLink('${p.slug}')">Copiar</button>
+        </div>`).join('')}
+    </div>`;
+}
+
+function copyLink(slug) {
+  navigator.clipboard.writeText(`${BASE_URL}/?ref=${slug}`);
+  showToast('Link copiado');
+}
+
+async function createPromoter() {
+  const name = document.getElementById('promo-name').value.trim();
+  const slug = document.getElementById('promo-slug').value.trim().toLowerCase().replace(/\s+/g, '-');
+  const email = document.getElementById('promo-email').value.trim();
+
+  if (!name || !slug) { showToast('Nombre y slug son obligatorios'); return; }
+
+  const res = await fetch('/api/admin-data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'create_promoter', name, slug, email })
+  });
+
+  if (res.ok) {
+    showToast('✓ Promotor creado');
+    document.getElementById('promo-name').value = '';
+    document.getElementById('promo-slug').value = '';
+    document.getElementById('promo-email').value = '';
+    loadPromoters();
+  } else {
+    showToast('Error al crear promotor');
+  }
+}
+
+// ── STATS ──
+async function loadStats() {
+  const content = document.getElementById('stats-content');
+  const res = await fetch('/api/admin-data?action=stats');
+  const orders = await res.json();
+
+  if (!orders || orders.length === 0) {
+    content.innerHTML = '<div class="empty-state">Sin ventas aún.</div>';
+    return;
+  }
+
+  const totalEntradas = orders.reduce((s, o) => s + o.quantity, 0);
+  const totalRecaudado = orders.reduce((s, o) => s + parseFloat(o.total_amount), 0);
+
+  // Por promotor
+  const byPromoter = {};
+  orders.forEach(o => {
+    const key = o.promoters?.name || 'Directo';
+    if (!byPromoter[key]) byPromoter[key] = { ventas: 0, entradas: 0, total: 0 };
+    byPromoter[key].ventas++;
+    byPromoter[key].entradas += o.quantity;
+    byPromoter[key].total += parseFloat(o.total_amount);
+  });
+
+  // Por tipo
+  const byType = {};
+  orders.forEach(o => {
+    const key = o.ticket_types?.name || 'Sin tipo';
+    if (!byType[key]) byType[key] = { entradas: 0, total: 0 };
+    byType[key].entradas += o.quantity;
+    byType[key].total += parseFloat(o.total_amount);
+  });
+
+  content.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Entradas vendidas</div>
+        <div class="stat-value">${totalEntradas}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total recaudado</div>
+        <div class="stat-value">$${totalRecaudado.toLocaleString('es-AR')}</div>
+      </div>
+    </div>
+
+    <div class="form-section" style="margin-bottom:16px;">
+      <div class="form-section-title">POR PROMOTOR</div>
+      <div class="table-wrap">
+        <div class="table-row table-header" style="grid-template-columns:1fr auto auto;">
+          <div>Promotor</div><div>Entradas</div><div>Total</div>
+        </div>
+        ${Object.entries(byPromoter).sort((a,b) => b[1].total - a[1].total).map(([name, data]) => `
+          <div class="table-row" style="grid-template-columns:1fr auto auto;">
+            <div style="font-weight:500;">${name}</div>
+            <div>${data.entradas}</div>
+            <div>$${data.total.toLocaleString('es-AR')}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">POR TIPO DE ENTRADA</div>
+      <div class="table-wrap">
+        <div class="table-row table-header" style="grid-template-columns:1fr auto auto;">
+          <div>Tipo</div><div>Entradas</div><div>Total</div>
+        </div>
+        ${Object.entries(byType).map(([name, data]) => `
+          <div class="table-row" style="grid-template-columns:1fr auto auto;">
+            <div style="font-weight:500;">${name}</div>
+            <div>${data.entradas}</div>
+            <div>$${data.total.toLocaleString('es-AR')}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── SETTINGS ──
+async function loadBankInfo() {
+  const res = await fetch('/api/admin-data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'get_bank' })
+  });
+  const data = await res.json();
+  if (data) {
+    document.getElementById('bank-cbu').value = data.cbu || '';
+    document.getElementById('bank-alias').value = data.alias || '';
+    document.getElementById('bank-titular').value = data.titular || '';
+  }
+}
+
+async function saveBankInfo() {
+  const cbu = document.getElementById('bank-cbu').value.trim();
+  const alias = document.getElementById('bank-alias').value.trim();
+  const titular = document.getElementById('bank-titular').value.trim();
+
+  const res = await fetch('/api/admin-data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'update_bank', cbu, alias, titular })
+  });
+
+  if (res.ok) showToast('✓ Datos bancarios actualizados');
+  else showToast('Error al guardar');
+}
+</script>
+</body>
+</html>
