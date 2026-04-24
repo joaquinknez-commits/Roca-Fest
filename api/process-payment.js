@@ -9,7 +9,6 @@ module.exports = async function handler(req, res) {
     const { orderId, paymentId } = req.body;
     if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
 
-    // Buscar la orden
     const orderRes = await fetch(
       `${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=*,ticket_types(name,price),events(name,date,venue)`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
@@ -18,10 +17,8 @@ module.exports = async function handler(req, res) {
     if (!orders || orders.length === 0) return res.status(404).json({ error: 'Order not found' });
     const order = orders[0];
 
-    // Si ya fue procesada, no hacer nada
     if (order.status === 'paid') return res.status(200).json({ ok: true, already: true });
 
-    // Marcar como pagada
     await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}`, {
       method: 'PATCH',
       headers: {
@@ -33,7 +30,6 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({ status: 'paid', mp_payment_id: String(paymentId || '') })
     });
 
-    // Actualizar stock
     await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_sold`, {
       method: 'POST',
       headers: {
@@ -44,7 +40,6 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({ ticket_type_id: order.ticket_type_id, amount: order.quantity })
     });
 
-    // Generar tickets
     const tickets = [];
     for (let i = 0; i < order.quantity; i++) {
       tickets.push({
@@ -69,7 +64,6 @@ module.exports = async function handler(req, res) {
     });
     const insertedTickets = await ticketRes.json();
 
-    // Mandar mail
     if (insertedTickets && insertedTickets.length > 0) {
       await sendEmail(order, insertedTickets, RESEND_KEY);
     }
@@ -84,8 +78,9 @@ module.exports = async function handler(req, res) {
 async function sendEmail(order, tickets, RESEND_KEY) {
   const event = order.events;
   const d = new Date(event.date);
-  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const timeStr = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  const tz = 'America/Argentina/Buenos_Aires';
+  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: tz });
+  const timeStr = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: tz });
 
   const ticketHtml = tickets.map((t, i) => `
     <div style="text-align:center;padding:24px 0;border-bottom:1px solid #eeeeec;">
