@@ -1380,6 +1380,17 @@ async function validateQR(code) {
   }, 4000);
 }
 
+function showFileName(input) {
+  const name = input.files[0]?.name;
+  const el = document.getElementById('comprobante-filename');
+  const drop = document.getElementById('comprobante-drop');
+  if (name) {
+    el.textContent = '✓ ' + name;
+    el.style.display = 'block';
+    drop.style.borderColor = 'var(--dark)';
+  }
+}
+
 init();
 </script>
 </body>
