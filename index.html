@@ -697,7 +697,7 @@ body {
 
 <div class="nav-tabs">
   <button class="nav-tab active" onclick="showPage('events', this)">Eventos</button>
-  <button class="nav-tab" onclick="showPage('staff', this)">Staff</button>
+  <button id="tab-staff" class="nav-tab" style="display:none;" onclick="showPage('staff', this)">Staff</button>
 </div>
 
 <div id="page-events" class="page active content">
@@ -833,6 +833,10 @@ let scanCooldown = false;
 async function init() {
   const params = new URLSearchParams(window.location.search);
   promoterSlug = params.get('ref');
+
+  if (params.get('staff') === 'true') {
+    document.getElementById('tab-staff').style.display = 'block';
+  }
 
   if (promoterSlug) {
     const { data } = await sb.from('promoters').select('*').eq('slug', promoterSlug).single();
