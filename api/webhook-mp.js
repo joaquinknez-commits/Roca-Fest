@@ -49,11 +49,9 @@ module.exports = async function handler(req, res) {
     const existingTickets = await ticketRes.json();
 
     if (existingTickets && existingTickets.length > 0) {
-      // Tickets ya creados por process-payment, solo mandar mail
-      console.log('Tickets already exist, sending email only');
-      await sendEmail(order, existingTickets, RESEND_KEY);
-      return res.status(200).json({ ok: true });
-    }
+  // Tickets ya creados por process-payment, no mandar mail de nuevo
+  return res.status(200).json({ ok: true });
+}
 
     // Si no hay tickets, crear todo desde cero
     if (order.status === 'paid') return res.status(200).json({ ok: true });
