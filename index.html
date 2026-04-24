@@ -349,6 +349,10 @@ body {
 }
 
 .ticket-row:last-child { border-bottom: none; }
+.ticket-row.sold-out { background: var(--off-white); }
+.ticket-row.sold-out .ticket-row-name { text-decoration: line-through; color: var(--mid); }
+.ticket-row.sold-out .ticket-row-price { color: var(--mid); }
+.ticket-row.sold-out .ticket-row-avail { color: #cc3333; font-weight: 500; }
 .ticket-row.selected .ticket-row-name { font-weight: 500; }
 .ticket-row-left { display: flex; flex-direction: column; gap: 3px; }
 .ticket-row-name { font-size: 15px; color: var(--black); }
