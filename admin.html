@@ -645,14 +645,17 @@ async function loadTicketTypesForm() {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
   });
   const types = await res.json();
-  if (!types || types.length === 0) { wrap.innerHTML = '<div class="empty-state">Sin tipos de entrada.</div>'; return; }
 
-  wrap.innerHTML = types.map(t => `
-    <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">
+  const typesList = (types || []).map(t => {
+    const avail = t.total_quantity - (t.sold_quantity || 0);
+    const soldOut = avail <= 0;
+    return `
+    <div style="border:1px solid ${soldOut ? '#ffd0d0' : 'var(--border)'};border-radius:10px;padding:14px;margin-bottom:12px;background:${soldOut ? '#fff5f5' : 'var(--white)'};">
+      ${soldOut ? `<div style="display:inline-block;background:#ffd0d0;color:#cc3333;font-size:10px;letter-spacing:1px;padding:2px 8px;border-radius:4px;margin-bottom:8px;font-weight:500;">AGOTADA</div>` : ''}
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Nombre</label>
-          <input type="text" class="form-input" id="tt-name-${t.id}" value="${t.name}" style="margin-bottom:0;">
+          <input type="text" class="form-input" id="tt-name-${t.id}" value="${t.name}" style="margin-bottom:0;${soldOut ? 'text-decoration:line-through;color:var(--mid);' : ''}">
         </div>
         <div class="form-group">
           <label class="form-label">Precio</label>
@@ -668,8 +671,61 @@ async function loadTicketTypesForm() {
           <button class="btn btn-sm" style="width:100%;" onclick="saveTicketType('${t.id}')">GUARDAR</button>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--mid);margin-top:8px;">Vendidas: ${t.sold_quantity || 0} · Disponibles: ${t.total_quantity - (t.sold_quantity || 0)}</div>
-    </div>`).join('');
+      <div style="font-size:11px;color:var(--mid);margin-top:8px;">Vendidas: ${t.sold_quantity || 0} · Disponibles: ${avail}</div>
+    </div>`;
+  }).join('');
+
+  // Form to add new ticket type
+  const eventRes = await fetch(`${SUPABASE_URL}/rest/v1/events?is_active=eq.true&select=id&limit=1`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  const events = await eventRes.json();
+  const eventId = events[0]?.id || '';
+
+  wrap.innerHTML = typesList + `
+    <div style="border:2px dashed var(--border);border-radius:10px;padding:14px;margin-top:4px;">
+      <div style="font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-bottom:12px;">+ AGREGAR TIPO DE ENTRADA</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-input" id="new-tt-name" placeholder="Ej: Preventa 2" style="margin-bottom:0;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio</label>
+          <input type="number" class="form-input" id="new-tt-price" placeholder="0" style="margin-bottom:0;">
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:12px;">
+        <div class="form-group">
+          <label class="form-label">Stock</label>
+          <input type="number" class="form-input" id="new-tt-qty" placeholder="100" style="margin-bottom:0;">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+          <button class="btn btn-sm btn-green" style="width:100%;" onclick="addTicketType('${eventId}')">AGREGAR</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function addTicketType(eventId) {
+  const name = document.getElementById('new-tt-name').value.trim();
+  const price = parseFloat(document.getElementById('new-tt-price').value);
+  const qty = parseInt(document.getElementById('new-tt-qty').value);
+
+  if (!name || !price || !qty) { showToast('Completá todos los campos'); return; }
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/ticket_types`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ event_id: eventId, name, price, total_quantity: qty, sold_quantity: 0 })
+  });
+
+  if (res.ok) {
+    showToast('✓ Tipo de entrada agregado');
+    loadTicketTypesForm();
+  } else {
+    showToast('Error al agregar');
+  }
 }
 
 async function saveTicketType(id) {
