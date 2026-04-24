@@ -4,7 +4,7 @@ module.exports = async function handler(req, res) {
   const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb214c3pxcGlrcXN2Y3JmdXBiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTM1MjE1MiwiZXhwIjoyMDkwOTI4MTUyfQ.wmJl_ZaOy6XnOXcxUYY1Ad2ZkJLXEU4YX6fW7s34Sv8';
   const MP_TOKEN = 'APP_USR-4243972737547638-040423-a2ff61e68570ca76f0ed6d6a953578db-772975227';
-  const RESEND_KEY = 're_EK5wn2dU_8qRKxSgzcUyVcmTZddDXoyem';
+  const RESEND_KEY = 're_iMvSuNAo_JdzsxN1txJUpiqmpv7C5vP45';
 
   try {
     const body = req.body || {};
@@ -165,7 +165,7 @@ async function sendEmail(order, tickets, RESEND_KEY) {
       'Authorization': `Bearer ${RESEND_KEY}`
     },
     body: JSON.stringify({
-      from: 'ROCA Entradas <onboarding@resend.dev>',
+      from: 'ROCA Entradas <entradas@roccaeventos.com.ar>',
       to: order.buyer_email,
       subject: `Tu entrada para ${event.name} — ROCA`,
       html
