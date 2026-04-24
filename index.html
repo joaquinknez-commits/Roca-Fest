@@ -1227,7 +1227,20 @@ async function submitTransfer() {
     if (error) throw error;
 
     document.getElementById('transfer-form').style.display = 'none';
-    document.getElementById('transfer-success').style.display = 'block';
+document.getElementById('transfer-success').style.display = 'block';
+
+// Aviso al admin
+fetch('/api/notify-admin', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    buyer_name: name,
+    buyer_email: email,
+    ticket_name: currentTicketType.name,
+    quantity: currentQty,
+    total: currentTicketType.price * currentQty
+  })
+}).catch(() => {});
 
   } catch(e) {
     errEl.textContent = 'Error al enviar. Intentá de nuevo.';
