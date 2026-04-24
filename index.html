@@ -847,7 +847,13 @@ body {
       </div>
 
       <label class="form-label">Adjuntá el comprobante</label>
-      <input type="file" id="comprobante-file" accept="image/*" class="form-input" style="padding:10px;cursor:pointer;">
+      <div id="comprobante-drop" onclick="document.getElementById('comprobante-file').click()" style="border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:16px;">
+  <div style="font-size:28px;margin-bottom:8px;">📎</div>
+  <div style="font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--black);margin-bottom:4px;">ADJUNTAR COMPROBANTE</div>
+  <div style="font-size:12px;color:var(--mid);">Tocá para elegir una foto</div>
+  <div id="comprobante-filename" style="font-size:12px;color:var(--black);margin-top:8px;font-weight:500;display:none;"></div>
+</div>
+<input type="file" id="comprobante-file" accept="image/*" style="display:none;" onchange="showFileName(this)">
 
       <div class="form-error" id="transfer-error"></div>
 
