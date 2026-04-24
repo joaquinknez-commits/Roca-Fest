@@ -3,7 +3,7 @@ module.exports = async function handler(req, res) {
 
   const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb214c3pxcGlrcXN2Y3JmdXBiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTM1MjE1MiwiZXhwIjoyMDkwOTI4MTUyfQ.wmJl_ZaOy6XnOXcxUYY1Ad2ZkJLXEU4YX6fW7s34Sv8';
-  const RESEND_KEY = 're_EK5wn2dU_8qRKxSgzcUyVcmTZddDXoyem';
+  const RESEND_KEY = 're_iMvSuNAo_JdzsxN1txJUpiqmpv7C5vP45';
 
   try {
     const { orderId, paymentId } = req.body;
