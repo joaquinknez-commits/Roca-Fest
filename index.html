@@ -809,7 +809,48 @@ body {
     <button class="pay-btn" id="pay-btn" onclick="startCheckout()">
       PAGAR CON <span class="mp-badge">MP</span>
     </button>
+    <button class="pay-btn" id="transfer-btn" onclick="showTransferForm()" style="background:var(--off-white);color:var(--black);border:1px solid var(--border);margin-top:10px;font-size:17px;">
+      PAGAR POR TRANSFERENCIA
+    </button>
     <button class="cancel-btn" onclick="closeModal()">Cancelar</button>
+
+    <!-- TRANSFER FORM -->
+    <div id="transfer-form" style="display:none;">
+      <div class="divider"></div>
+      <div class="section-label">Datos para transferir</div>
+      <div style="background:var(--off-white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <div style="margin-bottom:12px;">
+          <div style="font-size:10px;letter-spacing:1px;color:var(--mid);margin-bottom:4px;text-transform:uppercase;">CBU</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="bank-cbu-display" style="font-family:monospace;font-size:13px;color:var(--black);">0720146888000037148636</span>
+            <button onclick="copyText('bank-cbu-display')" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font-body);flex-shrink:0;">Copiar</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10px;letter-spacing:1px;color:var(--mid);margin-bottom:4px;text-transform:uppercase;">Alias</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="bank-alias-display" style="font-size:14px;color:var(--black);">roccaeventos</span>
+            <button onclick="copyText('bank-alias-display')" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font-body);flex-shrink:0;">Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="form-label">Adjuntá el comprobante</label>
+      <input type="file" id="comprobante-file" accept="image/*" class="form-input" style="padding:10px;cursor:pointer;">
+
+      <div class="form-error" id="transfer-error"></div>
+
+      <button class="pay-btn" id="transfer-submit-btn" onclick="submitTransfer()" style="margin-top:6px;">
+        ENVIAR COMPROBANTE
+      </button>
+      <button class="cancel-btn" onclick="hideTransferForm()">Volver</button>
+    </div>
+
+    <!-- TRANSFER SUCCESS -->
+    <div id="transfer-success" style="display:none;text-align:center;padding:24px 0;">
+      <div style="font-family:var(--font-display);font-size:32px;letter-spacing:2px;margin-bottom:12px;">¡RECIBIDO!</div>
+      <div style="font-size:14px;font-weight:300;color:var(--mid);line-height:1.8;">Recibimos tu comprobante.<br>En breve confirmamos y te<br>llega la entrada por mail.</div>
+    </div>
   </div>
 </div>
 
@@ -1075,6 +1116,100 @@ function showError(msg) {
   const el = document.getElementById('form-error');
   el.textContent = msg;
   el.style.display = 'block';
+}
+
+// ── TRANSFER ──
+function showTransferForm() {
+  document.getElementById('pay-btn').style.display = 'none';
+  document.getElementById('transfer-btn').style.display = 'none';
+  document.querySelector('.cancel-btn').style.display = 'none';
+  document.getElementById('transfer-form').style.display = 'block';
+  loadBankInfo();
+}
+
+function hideTransferForm() {
+  document.getElementById('pay-btn').style.display = 'flex';
+  document.getElementById('transfer-btn').style.display = 'flex';
+  document.querySelector('.cancel-btn').style.display = 'block';
+  document.getElementById('transfer-form').style.display = 'none';
+}
+
+async function loadBankInfo() {
+  try {
+    const res = await fetch('/api/admin-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_bank' })
+    });
+    const data = await res.json();
+    if (data && data.cbu) {
+      document.getElementById('bank-cbu-display').textContent = data.cbu;
+      document.getElementById('bank-alias-display').textContent = data.alias;
+    }
+  } catch(e) {}
+}
+
+function copyText(elementId) {
+  const text = document.getElementById(elementId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+async function submitTransfer() {
+  const name  = document.getElementById('buyer-name').value.trim();
+  const email = document.getElementById('buyer-email').value.trim();
+  const emailConfirm = document.getElementById('buyer-email-confirm').value.trim();
+  const file  = document.getElementById('comprobante-file').files[0];
+  const errEl = document.getElementById('transfer-error');
+  errEl.style.display = 'none';
+
+  if (!currentTicketType) { errEl.textContent = 'Seleccioná un tipo de entrada.'; errEl.style.display = 'block'; return; }
+  if (!name) { errEl.textContent = 'Ingresá tu nombre.'; errEl.style.display = 'block'; return; }
+  if (!email || !email.includes('@')) { errEl.textContent = 'Ingresá un email válido.'; errEl.style.display = 'block'; return; }
+  if (email !== emailConfirm) { errEl.textContent = 'Los emails no coinciden.'; errEl.style.display = 'block'; return; }
+  if (!file) { errEl.textContent = 'Adjuntá el comprobante de transferencia.'; errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('transfer-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Subiendo...';
+
+  try {
+    const uploadRes = await fetch('/api/upload-comprobante', {
+      method: 'POST',
+      headers: { 'Content-Type': file.type },
+      body: file
+    });
+    const uploadData = await uploadRes.json();
+    if (!uploadData.url) throw new Error('Error subiendo imagen');
+
+    const promoterId = promoterData ? promoterData.id : null;
+    const { data: transferReq, error } = await sb.from('transfer_requests').insert({
+      event_id: currentEvent.id,
+      ticket_type_id: currentTicketType.id,
+      promoter_id: promoterId,
+      buyer_name: name,
+      buyer_email: email,
+      quantity: currentQty,
+      total_amount: currentTicketType.price * currentQty,
+      comprobante_url: uploadData.url,
+      status: 'pending'
+    }).select().single();
+
+    if (error) throw error;
+
+    document.getElementById('transfer-form').style.display = 'none';
+    document.getElementById('transfer-success').style.display = 'block';
+
+  } catch(e) {
+    errEl.textContent = 'Error al enviar. Intentá de nuevo.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'ENVIAR COMPROBANTE';
+  }
 }
 
 function showPage(page, btn) {
