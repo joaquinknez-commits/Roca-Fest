@@ -981,8 +981,9 @@ function openModal(eventId) {
     ? '<div style="font-size:13px;color:var(--mid);padding:10px 0;">Sin entradas disponibles.</div>'
     : types.map(t => {
         const avail = t.total_quantity - (t.sold_quantity || 0);
-        return `
-          <div class="ticket-row" id="tr-${t.id}" onclick="selectTicket('${t.id}')">
+const soldOut = avail <= 0;
+return `
+  <div class="ticket-row ${soldOut ? 'sold-out' : ''}" id="tr-${t.id}" ${soldOut ? '' : `onclick="selectTicket('${t.id}')"`} style="${soldOut ? 'opacity:0.5;cursor:not-allowed;' : ''}">
             <div class="ticket-row-left">
               <div class="ticket-row-name">${t.name}</div>
               <div class="ticket-row-avail">${avail > 0 ? avail + ' disponibles' : 'Agotado'}</div>
