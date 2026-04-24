@@ -802,8 +802,15 @@ body {
     <div class="form-error" id="form-error"></div>
 
     <div class="total-row">
-      <div class="total-label">Total</div>
+      <div class="total-label">Total transferencia</div>
       <div class="total-amount" id="modal-total">$0</div>
+    </div>
+    <div id="mp-total-row" style="display:none;justify-content:space-between;align-items:center;padding:0 0 16px;">
+      <div style="font-size:11px;color:var(--mid);">Total con MP <span style="font-size:10px;">(+6% servicio)</span></div>
+      <div style="font-family:var(--font-display);font-size:22px;letter-spacing:1px;color:var(--mid);" id="modal-total-mp">$0</div>
+    </div>
+    <div id="mp-notice" style="display:none;background:var(--off-white);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--mid);line-height:1.6;">
+      💳 El pago con Mercado Pago incluye un <strong>6% de costo de servicio</strong>.<br>Transferencia bancaria sin cargo adicional.
     </div>
 
     <button class="pay-btn" id="pay-btn" onclick="startCheckout()">
@@ -1025,11 +1032,18 @@ function changeQty(delta) {
 
 function updateTotal() {
   if (!currentTicketType) {
-    document.getElementById('modal-total').textContent = '$0';
+    document.getElementById("modal-total").textContent = "$0";
+    document.getElementById("modal-total-mp").textContent = "$0";
+    document.getElementById("mp-total-row").style.display = "none";
+    document.getElementById("mp-notice").style.display = "none";
     return;
   }
   const total = currentTicketType.price * currentQty;
-  document.getElementById('modal-total').textContent = '$' + total.toLocaleString('es-AR');
+  const totalMP = Math.round(total * 1.06);
+  document.getElementById("modal-total").textContent = "$" + total.toLocaleString("es-AR");
+  document.getElementById("modal-total-mp").textContent = "$" + totalMP.toLocaleString("es-AR");
+  document.getElementById("mp-total-row").style.display = "flex";
+  document.getElementById("mp-notice").style.display = "block";
 }
 
 function closeModal() {
@@ -1088,7 +1102,7 @@ async function startCheckout() {
       buyer_name:     name,
       buyer_email:    email,
       quantity:       currentQty,
-      total_amount:   currentTicketType.price * currentQty,
+      total_amount:   Math.round(currentTicketType.price * currentQty * 1.06),
       status:         'pending'
     }).select().single();
 
