@@ -43,7 +43,6 @@ body {
   margin: 0 auto;
 }
 
-/* ── HERO ── */
 .hero {
   background: var(--black);
   padding: 48px 22px 32px;
@@ -77,7 +76,6 @@ body {
   color: var(--mid);
 }
 
-/* ── NAV TABS ── */
 .nav-tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
@@ -106,12 +104,10 @@ body {
 
 .nav-tab.active { color: var(--black); border-bottom-color: var(--black); }
 
-/* ── CONTENT ── */
 .content { padding: 0 16px 100px; }
 .page { display: none; }
 .page.active { display: block; }
 
-/* ── SECTION HEADER ── */
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -132,7 +128,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* ── PROMOTER BANNER ── */
 .promoter-banner {
   display: none;
   background: var(--off-white);
@@ -146,7 +141,6 @@ body {
 }
 .promoter-banner.visible { display: block; }
 
-/* ── EVENT CARD ── */
 .event-card {
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -168,20 +162,12 @@ body {
 .event-card:active { transform: scale(0.985); }
 .event-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
 
-.event-flyer {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
-}
+.event-flyer { width: 100%; height: 200px; object-fit: cover; display: block; }
 
 .event-flyer-placeholder {
-  width: 100%;
-  height: 200px;
+  width: 100%; height: 200px;
   background: var(--black);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
 }
 
 .event-flyer-placeholder-text {
@@ -258,7 +244,6 @@ body {
 
 .event-btn:active { transform: scale(0.97); opacity: 0.85; }
 
-/* ── LOADING / EMPTY ── */
 .loading-state, .empty-state {
   text-align: center;
   padding: 70px 20px;
@@ -284,7 +269,6 @@ body {
   margin-bottom: 8px;
 }
 
-/* ── MODAL ── */
 .modal-overlay {
   display: none;
   position: fixed; inset: 0;
@@ -344,11 +328,7 @@ body {
   margin-bottom: 24px;
 }
 
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 20px 0;
-}
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
 
 .section-label {
   font-size: 10px;
@@ -359,7 +339,6 @@ body {
   margin-bottom: 14px;
 }
 
-/* ── TICKET TYPE ROWS ── */
 .ticket-row {
   display: flex;
   align-items: center;
@@ -371,20 +350,9 @@ body {
 
 .ticket-row:last-child { border-bottom: none; }
 .ticket-row.selected .ticket-row-name { font-weight: 500; }
-
 .ticket-row-left { display: flex; flex-direction: column; gap: 3px; }
-
-.ticket-row-name {
-  font-size: 15px;
-  color: var(--black);
-}
-
-.ticket-row-avail {
-  font-size: 11px;
-  font-weight: 300;
-  color: var(--mid);
-}
-
+.ticket-row-name { font-size: 15px; color: var(--black); }
+.ticket-row-avail { font-size: 11px; font-weight: 300; color: var(--mid); }
 .ticket-row-right { display: flex; align-items: center; gap: 14px; }
 
 .ticket-row-price {
@@ -429,7 +397,6 @@ body {
   color: var(--black);
 }
 
-/* ── BUYER FORM ── */
 .form-label {
   display: block;
   font-size: 10px;
@@ -457,6 +424,7 @@ body {
 
 .form-input:focus { border-color: var(--dark); background: var(--white); }
 .form-input::placeholder { color: var(--mid); }
+.form-input.error { border-color: #cc3333; }
 
 .total-row {
   display: flex;
@@ -541,7 +509,6 @@ body {
   display: none;
 }
 
-/* ── STAFF PAGE ── */
 .staff-wrap { padding: 40px 22px; }
 
 .staff-title {
@@ -610,7 +577,6 @@ body {
   min-height: 20px;
 }
 
-/* ── SCANNER ── */
 .scanner-wrap { display: none; padding: 22px; }
 .scanner-wrap.visible { display: block; }
 
@@ -628,11 +594,7 @@ body {
   color: var(--black);
 }
 
-.scanner-sub {
-  font-size: 12px;
-  font-weight: 300;
-  color: var(--mid);
-}
+.scanner-sub { font-size: 12px; font-weight: 300; color: var(--mid); }
 
 .logout-btn {
   background: none;
@@ -655,18 +617,10 @@ body {
   margin-bottom: 16px;
 }
 
-.scanner-frame video {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
+.scanner-frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .scanner-canvas { display: none; }
 
-.scan-corners {
-  position: absolute; inset: 0;
-  pointer-events: none;
-}
+.scan-corners { position: absolute; inset: 0; pointer-events: none; }
 
 .scan-corner {
   position: absolute;
@@ -718,11 +672,7 @@ body {
 .scan-result.invalid .scan-status { color: #cc3333; }
 .scan-result.used    .scan-status { color: #b87800; }
 
-.scan-detail {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--mid);
-}
+.scan-detail { font-size: 13px; font-weight: 300; color: var(--mid); }
 
 .scanner-hint {
   text-align: center;
@@ -733,57 +683,23 @@ body {
   padding: 8px 0;
 }
 
-/* ── CAMERA ERROR ── */
-.camera-error {
-  background: var(--off-white);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 28px;
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.camera-error-title {
-  font-family: var(--font-display);
-  font-size: 20px;
-  letter-spacing: 2px;
-  color: var(--black);
-  margin-bottom: 8px;
-}
-
-.camera-error-text {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--mid);
-  line-height: 1.6;
-}
-
-/* Manual QR input for fallback */
-.manual-input-wrap {
-  margin-top: 16px;
-}
-
-.manual-input-wrap .form-input {
-  margin-bottom: 0;
-}
+.manual-input-wrap { margin-top: 16px; }
+.manual-input-wrap .form-input { margin-bottom: 0; }
 </style>
 </head>
 <body>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-eyebrow">Buenos Aires</div>
   <div class="hero-title">ROCA</div>
   <div class="hero-sub">Entradas oficiales</div>
 </div>
 
-<!-- NAV -->
 <div class="nav-tabs">
   <button class="nav-tab active" onclick="showPage('events', this)">Eventos</button>
   <button class="nav-tab" onclick="showPage('staff', this)">Staff</button>
 </div>
 
-<!-- EVENTS PAGE -->
 <div id="page-events" class="page active content">
   <div id="promoter-banner" class="promoter-banner">
     Vendiendo por: <strong id="promoter-name-text"></strong>
@@ -800,10 +716,7 @@ body {
   </div>
 </div>
 
-<!-- STAFF PAGE -->
 <div id="page-staff" class="page content">
-
-  <!-- PIN LOGIN -->
   <div class="staff-wrap" id="staff-login">
     <div class="staff-title">STAFF</div>
     <div class="staff-sub">Ingresá tu PIN para acceder al scanner</div>
@@ -830,7 +743,6 @@ body {
     <div class="pin-error" id="pin-error"></div>
   </div>
 
-  <!-- SCANNER -->
   <div class="scanner-wrap" id="scanner-wrap">
     <div class="scanner-header">
       <div>
@@ -839,7 +751,6 @@ body {
       </div>
       <button class="logout-btn" onclick="staffLogout()">Salir</button>
     </div>
-
     <div class="scanner-frame" id="scanner-frame">
       <video id="scanner-video" playsinline autoplay muted></video>
       <canvas class="scanner-canvas" id="scanner-canvas"></canvas>
@@ -851,15 +762,11 @@ body {
         <div class="scan-line"></div>
       </div>
     </div>
-
     <div class="scan-result" id="scan-result">
       <div class="scan-status" id="scan-status">—</div>
       <div class="scan-detail" id="scan-detail">—</div>
     </div>
-
     <div class="scanner-hint">Escaneando automáticamente...</div>
-
-    <!-- Manual fallback -->
     <div class="manual-input-wrap" style="margin-top:20px;">
       <div class="section-label">O ingresá el código manualmente</div>
       <div style="display:flex;gap:10px;">
@@ -868,7 +775,6 @@ body {
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- PURCHASE MODAL -->
@@ -890,6 +796,8 @@ body {
     <input type="text" class="form-input" id="buyer-name" placeholder="Juan García" autocomplete="name">
     <label class="form-label">Email</label>
     <input type="email" class="form-input" id="buyer-email" placeholder="juan@email.com" autocomplete="email">
+    <label class="form-label">Confirmá tu email</label>
+    <input type="email" class="form-input" id="buyer-email-confirm" placeholder="juan@email.com" autocomplete="off">
 
     <div class="form-error" id="form-error"></div>
 
@@ -906,12 +814,10 @@ body {
 </div>
 
 <script>
-// ── CONFIG ──
 const SUPABASE_URL = 'https://vdomxszqpikqsvcrfupb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb214c3pxcGlrcXN2Y3JmdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNTIxNTIsImV4cCI6MjA5MDkyODE1Mn0.uZhKgDTChxc2RIPq4xLnMHwQ8ntthTSdXyXEu8vkThs';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── STATE ──
 let allEvents = [];
 let currentEvent = null;
 let currentTicketType = null;
@@ -924,7 +830,6 @@ let scanInterval = null;
 let lastScannedCode = null;
 let scanCooldown = false;
 
-// ── INIT ──
 async function init() {
   const params = new URLSearchParams(window.location.search);
   promoterSlug = params.get('ref');
@@ -941,10 +846,8 @@ async function init() {
   await loadEvents();
 }
 
-// ── LOAD EVENTS ──
 async function loadEvents() {
   const list = document.getElementById('events-list');
-
   try {
     const { data, error } = await sb
       .from('events')
@@ -956,11 +859,7 @@ async function loadEvents() {
     if (error) throw error;
 
     if (!data || data.length === 0) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-title">SIN EVENTOS</div>
-          <div style="font-size:13px;font-weight:300;">Próximamente...</div>
-        </div>`;
+      list.innerHTML = `<div class="empty-state"><div class="empty-title">SIN EVENTOS</div><div style="font-size:13px;font-weight:300;">Próximamente...</div></div>`;
       document.getElementById('event-count').textContent = '';
       return;
     }
@@ -998,14 +897,10 @@ async function loadEvents() {
     }).join('');
 
   } catch (e) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div style="font-size:13px;color:#cc3333;">Error al cargar eventos.<br>Verificá tu conexión.</div>
-      </div>`;
+    list.innerHTML = `<div class="empty-state"><div style="font-size:13px;color:#cc3333;">Error al cargar eventos.<br>Verificá tu conexión.</div></div>`;
   }
 }
 
-// ── MODAL ──
 function openModal(eventId) {
   const ev = allEvents.find(e => e.id === eventId);
   if (!ev) return;
@@ -1023,6 +918,9 @@ function openModal(eventId) {
   document.getElementById('modal-venue').textContent = ev.venue;
   document.getElementById('buyer-name').value = '';
   document.getElementById('buyer-email').value = '';
+  document.getElementById('buyer-email-confirm').value = '';
+  document.getElementById('buyer-email').classList.remove('error');
+  document.getElementById('buyer-email-confirm').classList.remove('error');
   document.getElementById('form-error').style.display = 'none';
   document.getElementById('modal-total').textContent = '$0';
 
@@ -1098,16 +996,35 @@ function handleOverlayClick(e) {
   if (e.target === document.getElementById('purchase-modal')) closeModal();
 }
 
-// ── CHECKOUT ──
 async function startCheckout() {
   const name  = document.getElementById('buyer-name').value.trim();
   const email = document.getElementById('buyer-email').value.trim();
+  const emailConfirm = document.getElementById('buyer-email-confirm').value.trim();
   const errEl = document.getElementById('form-error');
   errEl.style.display = 'none';
 
+  // Limpiar errores visuales
+  document.getElementById('buyer-email').classList.remove('error');
+  document.getElementById('buyer-email-confirm').classList.remove('error');
+
   if (!currentTicketType) { showError('Seleccioná un tipo de entrada.'); return; }
-  if (!name)              { showError('Ingresá tu nombre.'); return; }
-  if (!email || !email.includes('@')) { showError('Ingresá un email válido.'); return; }
+  if (!name) { showError('Ingresá tu nombre.'); return; }
+  if (!email || !email.includes('@')) {
+    showError('Ingresá un email válido.');
+    document.getElementById('buyer-email').classList.add('error');
+    return;
+  }
+  if (!emailConfirm) {
+    showError('Confirmá tu email.');
+    document.getElementById('buyer-email-confirm').classList.add('error');
+    return;
+  }
+  if (email !== emailConfirm) {
+    showError('Los emails no coinciden. Verificá que estén bien escritos.');
+    document.getElementById('buyer-email').classList.add('error');
+    document.getElementById('buyer-email-confirm').classList.add('error');
+    return;
+  }
 
   const avail = currentTicketType.total_quantity - (currentTicketType.sold_quantity || 0);
   if (avail <= 0) { showError('Esta entrada está agotada.'); return; }
@@ -1132,9 +1049,6 @@ async function startCheckout() {
 
     if (error) throw error;
 
-    // ── Redirect to Mercado Pago ──
-    // Once you configure your MP Access Token in Vercel env vars,
-    // this call will go to /api/create-preference with the order id.
     const res = await fetch('/api/create-preference', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1159,7 +1073,6 @@ function showError(msg) {
   el.style.display = 'block';
 }
 
-// ── PAGES ──
 function showPage(page, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -1168,7 +1081,6 @@ function showPage(page, btn) {
   if (page !== 'staff') stopScanner();
 }
 
-// ── STAFF / PIN ──
 function pinPress(num) {
   if (pinValue.length >= 4) return;
   pinValue += num;
@@ -1211,11 +1123,10 @@ function staffLogout() {
   document.getElementById('scan-result').classList.remove('visible', 'valid', 'invalid', 'used');
 }
 
-// ── SCANNER ──
 async function startScanner() {
-  const video   = document.getElementById('scanner-video');
-  const canvas  = document.getElementById('scanner-canvas');
-  const frame   = document.getElementById('scanner-frame');
+  const video  = document.getElementById('scanner-video');
+  const canvas = document.getElementById('scanner-canvas');
+  const frame  = document.getElementById('scanner-frame');
 
   try {
     scanStream = await navigator.mediaDevices.getUserMedia({
@@ -1232,16 +1143,14 @@ async function startScanner() {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
-      if (code && code.data && !scanCooldown) {
-        handleQRScan(code.data);
-      }
+      if (code && code.data && !scanCooldown) handleQRScan(code.data);
     }, 300);
 
   } catch (e) {
     frame.innerHTML = `
-      <div class="camera-error" style="position:absolute;inset:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
-        <div class="camera-error-title">SIN CÁMARA</div>
-        <div class="camera-error-text">No se pudo acceder a la cámara.<br>Usá el campo manual.</div>
+      <div style="position:absolute;inset:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--off-white);">
+        <div style="font-family:var(--font-display);font-size:20px;letter-spacing:2px;">SIN CÁMARA</div>
+        <div style="font-size:13px;font-weight:300;color:var(--mid);text-align:center;">No se pudo acceder a la cámara.<br>Usá el campo manual.</div>
       </div>`;
   }
 }
@@ -1256,10 +1165,7 @@ async function handleQRScan(code) {
   lastScannedCode = code;
   scanCooldown = true;
   await validateQR(code);
-  setTimeout(() => {
-    scanCooldown = false;
-    lastScannedCode = null;
-  }, 3500);
+  setTimeout(() => { scanCooldown = false; lastScannedCode = null; }, 3500);
 }
 
 function manualValidate() {
