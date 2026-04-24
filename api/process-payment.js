@@ -131,7 +131,7 @@ async function sendEmail(order, tickets, RESEND_KEY) {
       'Authorization': `Bearer ${RESEND_KEY}`
     },
     body: JSON.stringify({
-      from: 'ROCA Entradas <onboarding@resend.dev>',
+      from: 'ROCA Entradas <entradas@roccaeventos.com.ar>',
       to: order.buyer_email,
       subject: `Tu entrada para ${event.name} — ROCA`,
       html
