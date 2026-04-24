@@ -101,9 +101,7 @@ module.exports = async function handler(req, res) {
     });
     const insertedTickets = await newTicketRes.json();
 
-    if (insertedTickets && insertedTickets.length > 0) {
-      await sendEmail(order, insertedTickets, RESEND_KEY);
-    }
+    // Mail se manda desde process-payment, no desde el webhook
 
     return res.status(200).json({ ok: true });
 
@@ -113,11 +111,6 @@ module.exports = async function handler(req, res) {
   }
 };
 
-async function sendEmail(order, tickets, RESEND_KEY) {
-  const event = order.events;
-  const d = new Date(event.date);
-  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const timeStr = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 
   const ticketHtml = tickets.map((t, i) => `
     <div style="text-align:center;padding:24px 0;border-bottom:1px solid #eeeeec;">
